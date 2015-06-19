@@ -33,6 +33,7 @@ public class PortalCommand implements CommandExecutor {
 
 		if (args.length > 1) {
 			player.sendMessage(ChatColor.RED + "Invalid arguments. Correct usage is /portal [buy/set]");
+			Portals.instance.getLogger().info(player.getName() + " entered invalid arguments.");
 			return true;
 		}
 
@@ -45,12 +46,17 @@ public class PortalCommand implements CommandExecutor {
 
 		if (arg.startsWith("buy")) {
 			purchase(player);
+			return true;
 		} else if (arg.startsWith("set")) {
 			set(player);
+			return true;
 		} else if (arg.startsWith("info")) {
 			show_info(player);
+			return true;
 		}
 
+		player.sendMessage(ChatColor.RED + "Invalid arguments. Correct usage is /portal [buy/set]");
+		Portals.instance.getLogger().info(player.getName() + " entered invalid arguments.");
 		return true;
 	}
 
@@ -66,6 +72,7 @@ public class PortalCommand implements CommandExecutor {
 
 		/* If this portal is not a Portals portal */
 		if (destination == null) {
+			Portals.instance.getLogger().info(player.getName() + " destination was null, showing info.");
 			show_info(player);
 			return;
 		}
@@ -98,12 +105,18 @@ public class PortalCommand implements CommandExecutor {
 		message += "\nYou have purchased " + ChatColor.AQUA + portal_count
 				+ ChatColor.GREEN + " portals.";
 
+		String log_message = "Showing info to " + player.getName() + ": " + portal_count + " portals available.";
+
 		Location unset = SQLite.get_unset_portal(uuid);
 		if (unset != null) {
 			message += "\nYou are currently placing a portal set. Take care not to die!";
+			log_message += "Player is currently placing a portal set.";
+		} else {
+			log_message += "Player is not currently placing a portal set.";
 		}
 
 		player.sendMessage(message);
+		Portals.instance.getLogger().info(log_message);
 	}
 
 	/**
@@ -118,6 +131,7 @@ public class PortalCommand implements CommandExecutor {
 		String world = location.getWorld().getName();
 		if (!(world.equals("world") || world.equals("world_nether") || world.equals("world_the_end"))) {
 			player.sendMessage(ChatColor.RED + "You cannot place portals in this world.");
+			Portals.instance.getLogger().info(player.getName() + " is unable to place portals in this world.");
 			return;
 		}
 
@@ -125,12 +139,13 @@ public class PortalCommand implements CommandExecutor {
 		int y = location.getBlockY();
 		int z = location.getBlockZ();
 
-		if ((Math.abs(x) < 40 && Math.abs(z) < 40 && world.equals("world")) 
+		if ((Math.abs(x) < 40 && Math.abs(z) < 40 && world.equals("world") && (!player.isOp())) 
 				|| y >= 250 || y <= 5) {
 			player.sendMessage(ChatColor.RED + "You cannot place place portals at this location.");
+			Portals.instance.getLogger().info(player.getName() + " is unable to place portals at this location.");
 			return;
 		}
-		
+
 		Block block = location.getBlock();
 		for (int i = 0; i < path.length; i++) {
 			block = block.getRelative(path[i]);
@@ -165,6 +180,7 @@ public class PortalCommand implements CommandExecutor {
 		if (amount < 1) {
 			player.sendMessage(ChatColor.RED + "You do not have any portals."
 					+ " Purchase one with /portal buy, the price is 1 diamond block and 5 lapis blocks.");
+			Portals.instance.getLogger().info(player.getName() + " did not have any purchased portals.");
 			return;
 		}
 
@@ -188,7 +204,7 @@ public class PortalCommand implements CommandExecutor {
 
 		UUID uuid = player.getUniqueId();
 		SQLite.delete_unset_portal(uuid);
-		
+
 		Block block = unset.getBlock();
 		for (int i = 0; i < path.length; i++) {
 			block = block.getRelative(path[i]);
@@ -220,6 +236,7 @@ public class PortalCommand implements CommandExecutor {
 			player.sendMessage(ChatColor.RED + "You do not have enough "
 					+ "diamond blocks to purchase a portal. It costs 1 "
 					+ "diamond block and 5 lapis lazuli blocks to purchase a portal.");
+			Portals.instance.getLogger().info(player.getName() + " did not have enough diamond blocks.");
 			return;
 		}
 
@@ -227,6 +244,7 @@ public class PortalCommand implements CommandExecutor {
 			player.sendMessage(ChatColor.RED + "You do not have enough lapis "
 					+ "lazuli blocks to purchase a portal. It costs 1 diamond "
 					+ "block and 5 lapis lazuli blocks to purchase a portal.");
+			Portals.instance.getLogger().info(player.getName() + " did not have enough lapis blocks.");
 			return;
 		}
 
