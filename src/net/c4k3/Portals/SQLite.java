@@ -54,14 +54,16 @@ public class SQLite {
 						+ "y INT,"
 						+ "z INT,"
 						+ "world TEXT,"
-						+ "uuid BLOB);" // of the creator
-
-						+ "CREATE TABLE purchased_portals "
-						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-						+ "uuid BLOB,"
-						+ "amount INT);";
+						+ "uuid BLOB);"; // of the creator
 				st.executeUpdate(query);
 				query = "PRAGMA user_version = 1;";
+				st.executeUpdate(query);
+				break;
+			}
+			case 1: {
+				Portals.instance.getLogger().info("Migrating to version 2 ...");
+				String query = "DROP TABLE purchased_portals;"
+						+ "PRAGMA user_version = 2;";
 				st.executeUpdate(query);
 				break;
 			}
