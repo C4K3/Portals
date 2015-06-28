@@ -212,14 +212,8 @@ public class SQLite {
 	 * @param uuid UUID of the player whose portal is to be retrieved.
 	 * @return The location of the unset portal if it exists, null if it does not exist.
 	 */
-	public static Location get_unset_portal(UUID uuid) {
-		Location portal = null;
-
-		int x = 0;
-		int y = 0;
-		int z = 0;
-		String world = "";
-		int count = 0;
+	public static Block get_unset_portal(UUID uuid) {
+		Block portal = null;
 
 		try {
 			Statement st = conn.createStatement();
@@ -228,11 +222,8 @@ public class SQLite {
 			ResultSet rs = st.executeQuery(query);
 
 			while (rs.next()) {
-				count++;
-				x = rs.getInt("x");
-				y = rs.getInt("y");
-				z = rs.getInt("z");
-				world = rs.getString("world");
+				World world = Portals.instance.getServer().getWorld(rs.getString("world"));
+				portal = world.getBlockAt(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 			}
 
 			rs.close();
