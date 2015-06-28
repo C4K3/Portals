@@ -56,9 +56,8 @@ public class SQLite {
 						+ "y INT,"
 						+ "z INT,"
 						+ "world TEXT,"
-						+ "uuid BLOB);"; // of the creator
-				st.executeUpdate(query);
-				query = "PRAGMA user_version = 1;";
+						+ "uuid BLOB);"
+						+ "PRAGMA user_version = 2;"; // of the creator
 				st.executeUpdate(query);
 				break;
 			}
