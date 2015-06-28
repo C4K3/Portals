@@ -2,6 +2,7 @@ package net.c4k3.Portals;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -118,6 +119,7 @@ public class SQLite {
 
 			st.executeUpdate(query);
 			st.close();
+
 		} catch (Exception e) {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
@@ -129,14 +131,18 @@ public class SQLite {
 	 */
 	public static void delete_portal_pair(int id) {
 		try {
-			Statement st = conn.createStatement();
-
 			String query = "DELETE FROM portal_pairs WHERE id IN "
-					+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = '" + id + "');"
-					+ "DELETE FROM portal_pairs WHERE id = '" + id + "';";
+					+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = ?);";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1, id);
+			st.executeUpdate();
 
-			st.executeUpdate(query);
+			query = "DELETE FROM portal_pairs WHERE id = ?";
+			st = conn.prepareStatement(query);
+			st.setInt(1, id);
+			st.executeUpdate();
 			st.close();
+
 		} catch (Exception e) {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
@@ -148,7 +154,7 @@ public class SQLite {
 	 * @param location Location of the player
 	 * @return Location if it is a valid portal-pair, else null
 	 */
-	static Location get_other_portal(Location from) {
+	public static Location get_other_portal(Location from) {
 		Location destination = null;
 
 		int x = from.getBlockX();
@@ -157,12 +163,16 @@ public class SQLite {
 		String world = from.getWorld().getName();
 
 		try {
-			Statement st = conn.createStatement();
-
 			String query = "SELECT * FROM portal_pairs WHERE id IN "
-					+ "(SELECT DISTINCT pair FROM portal_pairs WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + world + "');";
+					+ "(SELECT DISTINCT pair FROM portal_pairs "
+					+ "WHERE x = ? AND y = ? AND z = ? AND world = ?);";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1, x);
+			st.setInt(2, y);
+			st.setInt(3, z);
+			st.setString(4, world);
 
-			ResultSet rs = st.executeQuery(query);
+			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
 				destination = new Location(Portals.instance.getServer().getWorld(
 						rs.getString("world")), (double) rs.getInt("x") + 0.5,
@@ -190,12 +200,15 @@ public class SQLite {
 		int z = block.getZ();
 
 		try {
-			Statement st = conn.createStatement();
+			String query = "SELECT id FROM portal_pairs "
+					+ "WHERE world = ? AND x = ? AND y = ? AND z = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, world);
+			st.setInt(2, x);
+			st.setInt(3, y);
+			st.setInt(4, z);
 
-			String query = "SELECT id FROM portal_pairs WHERE "
-					+ "world = '" + world + "' AND x = '" + x + "' AND "
-					+ "y = '" + y + "' AND z = '" + z + "';";
-			ResultSet rs = st.executeQuery(query);
+			ResultSet rs = st.executeQuery();
 
 			while (rs.next())
 				id = rs.getInt("id");
@@ -217,10 +230,10 @@ public class SQLite {
 		Block portal = null;
 
 		try {
-			Statement st = conn.createStatement();
-
-			String query = "SELECT * FROM unset_portals WHERE uuid = '" + uuid + "';";
-			ResultSet rs = st.executeQuery(query);
+			String query = "SELECT * FROM unset_portals WHERE uuid = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, uuid.toString());
+			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
 				World world = Portals.instance.getServer().getWorld(rs.getString("world"));
@@ -248,12 +261,15 @@ public class SQLite {
 		int z = block.getZ();
 
 		try {
-			Statement st = conn.createStatement();
+			String query = "SELECT id FROM unset_portals "
+					+ "WHERE world = ? AND x = ? AND y = ? AND z = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, world);
+			st.setInt(2, x);
+			st.setInt(3, y);
+			st.setInt(4, z);
 
-			String query = "SELECT id FROM unset_portals WHERE "
-					+ "world = '" + world + "' AND x = '" + x + "' AND "
-					+ "y = '" + y + "' AND z = '" + z + "';";
-			ResultSet rs = st.executeQuery(query);
+			ResultSet rs = st.executeQuery();
 
 			while (rs.next())
 				id = rs.getInt("id");
@@ -278,12 +294,16 @@ public class SQLite {
 		String world = location.getWorld().getName();
 
 		try {
-			Statement st = conn.createStatement();
+			String query = "INSERT INTO unset_portals "
+					+ "(x, y, z, world, uuid) VALUES (?, ?, ?, ?, ?)";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1, x);
+			st.setInt(2, y);
+			st.setInt(3, z);
+			st.setString(4, world);
+			st.setString(5, uuid.toString());
 
-			String query = "INSERT INTO unset_portals (x, y, z, world, uuid)"
-					+ "VALUES ('" + x + "', '" + y + "', '" + z + "', '" + world + "', '" + uuid + "');";
-			st.executeUpdate(query);
-
+			st.executeUpdate();
 			st.close();
 
 		} catch (Exception e) {
@@ -297,11 +317,11 @@ public class SQLite {
 	 */
 	public static void delete_unset_portal(UUID uuid) {
 		try {
-			Statement st = conn.createStatement();
+			String query = "DELETE FROM unset_portals WHERE uuid = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, uuid.toString());
 
-			String query = "DELETE FROM unset_portals WHERE uuid = '" + uuid + "';";
-			st.executeUpdate(query);
-
+			st.executeUpdate();
 			st.close();
 
 		} catch (Exception e) {
@@ -327,16 +347,20 @@ public class SQLite {
 		ArrayList<PortalLocation> locations = new ArrayList<PortalLocation>();
 
 		try {
-			Statement st = conn.createStatement();
+			String query = "SELECT * FROM portal_pairs WHERE world = ? AND "
+					+ "x BETWEEN ? AND ? AND "
+					+ "y BETWEEN ? AND ? AND "
+					+ "z BETWEEN ? AND ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, world);
+			st.setInt(2, x - 1);
+			st.setInt(3, x + 1);
+			st.setInt(4, y - 2);
+			st.setInt(5, y + 1);
+			st.setInt(6, z - 1);
+			st.setInt(7, z + 1);
 
-			String query = "SELECT * FROM portal_pairs WHERE "
-					+ "world = '" + world + "' AND "
-					+ "x BETWEEN '" + (x - 1) + "' AND '" + (x + 1) + "' AND "
-					+ "y BETWEEN '" + (y - 2) + "' AND '" + (y + 1) + "' AND "
-					+ "z BETWEEN '" + (z - 1) + "' AND '" + (z + 1) + "';";
-
-			ResultSet rs = st.executeQuery(query);
-
+			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
 				int id = rs.getInt("id");
 				Block portalblock = block.getWorld().getBlockAt(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
