@@ -129,7 +129,7 @@ public class SQLite {
 			Statement st = conn.createStatement();
 
 			String query = "DELETE FROM portal_pairs WHERE id IN "
-					+ "(SELECT DISTINCT pair FROM portal_pairs WHERE x = '" + id + "');"
+					+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = '" + id + "');"
 					+ "DELETE FROM portal_pairs WHERE id = '" + id + "';";
 
 			st.executeUpdate(query);
