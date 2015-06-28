@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public class SQLite {
@@ -228,9 +230,12 @@ public class SQLite {
 
 			rs.close();
 			st.close();
+		} catch (Exception e) {
+			Portals.instance.getLogger().info(e.getMessage());
+		}
+		return portal;
+	}
 
-			if (count > 0)			
-				portal = new Location(Portals.instance.getServer().getWorld(world), x, y, z);
 	/**
 	 * Gets an unset portal by it's exact location.
 	 * @param block The block that is the exact block where the portal is.
