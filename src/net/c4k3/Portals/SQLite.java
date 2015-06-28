@@ -93,17 +93,17 @@ public class SQLite {
 	 * @param portal1 Location of the first portal.
 	 * @param portal2 Location of the second portal.
 	 */
-	public static void insert_portal_pair(Location portal1, Location portal2) {
+	public static void insert_portal_pair(Block portal1, Block portal2) {
 		try {
 			Statement st = conn.createStatement();
 
-			int x1 = portal1.getBlockX();
-			int y1 = portal1.getBlockY();
-			int z1 = portal1.getBlockZ();
+			int x1 = portal1.getX();
+			int y1 = portal1.getY();
+			int z1 = portal1.getZ();
 			String world1 = portal1.getWorld().getName();
-			int x2 = portal2.getBlockX();
-			int y2 = portal2.getBlockY();
-			int z2 = portal2.getBlockZ();
+			int x2 = portal2.getX();
+			int y2 = portal2.getY();
+			int z2 = portal2.getZ();
 			String world2 = portal2.getWorld().getName();
 
 			String query = "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES "
@@ -309,10 +309,10 @@ public class SQLite {
 	 * @param uuid The player's UUID
 	 * @param location Location
 	 */
-	public static void insert_unset_portal(UUID uuid, Location location) {
-		int x = location.getBlockX();
-		int y = location.getBlockY();
-		int z = location.getBlockZ();
+	public static void insert_unset_portal(UUID uuid, Block location) {
+		int x = location.getX();
+		int y = location.getY();
+		int z = location.getZ();
 		String world = location.getWorld().getName();
 
 		try {
