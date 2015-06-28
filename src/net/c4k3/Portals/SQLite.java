@@ -231,12 +231,35 @@ public class SQLite {
 
 			if (count > 0)			
 				portal = new Location(Portals.instance.getServer().getWorld(world), x, y, z);
+	/**
+	 * Gets an unset portal by it's exact location.
+	 * @param block The block that is the exact block where the portal is.
+	 * @return The id of the portal. -1 if no such portal exists.
+	 */
+	public static int get_unset_by_location(Block block) {
+		int id = -1;
+		String world = block.getWorld().getName();
+		int x = block.getX();
+		int y = block.getY();
+		int z = block.getZ();
 
+		try {
+			Statement st = conn.createStatement();
+
+			String query = "SELECT id FROM unset_portals WHERE "
+					+ "world = '" + world + "' AND x = '" + x + "' AND "
+					+ "y = '" + y + "' AND z = '" + z + "';";
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+				id = rs.getInt("id");
+
+			rs.close();
+			st.close();
 		} catch (Exception e) {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
-
-		return portal;
+		return id;
 	}
 
 	/**
