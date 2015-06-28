@@ -311,27 +311,33 @@ public class SQLite {
 	 * Called whenever an obsidian block is destroyed, this checks whther
 	 * that block was part of a portal here.
 	 * @param block The block that was broken.
-	 * @return The id (PK) of the portal that this block is a part of.
+	 * @return An arraylist of PortalLocations for portals within range of
+	 * the broken block.
 	 */
-	public static int obsidian_checker(Block block) {
+	public static ArrayList<PortalLocation> obsidian_checker(Block block) {
 		int x = block.getX();
 		int y = block.getY();
 		int z = block.getZ();
 		String world = block.getWorld().getName();
 
-		int id = -1;
+		ArrayList<PortalLocation> locations = new ArrayList<PortalLocation>();
+
 		try {
 			Statement st = conn.createStatement();
 
-			String query = "SELECT id FROM portal_pairs WHERE "
-					+ "world = '" + world + "' AND z = '" + z + "' AND "
+			String query = "SELECT * FROM portal_pairs WHERE "
+					+ "world = '" + world + "' AND "
 					+ "x BETWEEN '" + (x - 1) + "' AND '" + (x + 1) + "' AND "
-					+ "y BETWEEN '" + (y - 2) + "' AND '" + (y + 1) + "';";
+					+ "y BETWEEN '" + (y - 2) + "' AND '" + (y + 1) + "' AND "
+					+ "z BETWEEN '" + (z - 1) + "' AND '" + (z + 1) + "';";
 
 			ResultSet rs = st.executeQuery(query);
 
-			while (rs.next())
-				id = rs.getInt("id");
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				Block portalblock = block.getWorld().getBlockAt(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
+				locations.add(new PortalLocation(portalblock, id));
+			}
 
 			rs.close();
 			st.close();
@@ -339,7 +345,7 @@ public class SQLite {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
 
-		return id;
+		return locations;
 	}
 
 }
