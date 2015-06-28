@@ -94,9 +94,9 @@ public class PortalCommand implements CommandExecutor {
 		Block unset = SQLite.get_unset_portal(player.getUniqueId());
 		if (unset != null) {
 			message += "\nYou are currently placing a portal set. Take care not to die!";
-			log_message = "Player is currently placing a portal set.";
+			log_message = player.getName() + " is currently placing a portal set.";
 		} else {
-			log_message = "Player is not currently placing a portal set.";
+			log_message = player.getName() + " is not currently placing a portal set.";
 		}
 
 		player.sendMessage(message);
