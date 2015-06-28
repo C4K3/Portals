@@ -19,6 +19,7 @@ public class Portals extends JavaPlugin {
 
 		getCommand("portal").setExecutor(new PortalCommand());
 		getServer().getPluginManager().registerEvents(new BlockBreak(), this);
+		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 
 
