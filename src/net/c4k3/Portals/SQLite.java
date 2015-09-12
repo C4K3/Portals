@@ -176,7 +176,8 @@ public class SQLite {
 			while (rs.next()) {
 				destination = new Location(Portals.instance.getServer().getWorld(
 						rs.getString("world")), (double) rs.getInt("x") + 0.5,
-						(double) rs.getInt("y"), (double) rs.getInt("z") + 0.5);
+						(double) rs.getInt("y"), (double) rs.getInt("z") + 0.5,
+						from.getYaw(), from.getPitch());
 			}
 
 			rs.close();			

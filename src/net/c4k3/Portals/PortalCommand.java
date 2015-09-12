@@ -75,9 +75,11 @@ public class PortalCommand implements CommandExecutor {
 
 		/* workaround for laggy teleports, see
 		 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */
-		Location fLoc = new Location(destination.getWorld(), destination.getBlockX(), destination.getBlockY() - 1, destination.getBlockZ());
+		Location fLoc = new Location(destination.getWorld(),
+				destination.getBlockX(), destination.getBlockY() - 1,
+				destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
-
+		
 		player.teleport(destination);
 	}
 
