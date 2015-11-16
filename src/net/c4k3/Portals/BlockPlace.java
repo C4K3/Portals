@@ -2,7 +2,6 @@ package net.c4k3.Portals;
 
 import java.util.UUID;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -58,14 +57,12 @@ public class BlockPlace implements Listener {
 		Block unset = SQLite.get_unset_portal(uuid);
 		if (unset == null) {
 			SQLite.insert_unset_portal(uuid, location);
-			player.sendMessage(ChatColor.GREEN + "You have successfully set one "
-					+ "end of the portal here. Go to where you want the other "
-					+ "end to be at, and create another portal there. Be sure "
-					+ "not to die or break or this portal before setting the "
-					+ "other end, because in that case this location will be "
-					+ "forgotten, and you'll have to do everything all over again.");
-			Portals.instance.getLogger().info(player.getName() + " successfully created an unset portal.");
-
+			Portals.instance.getLogger().info(player.getName() + " successfully created an unset portal at"
+					+ " " + location.getWorld().getName()
+					+ " " + location.getX()
+					+ " " + location.getY()
+					+ " " + location.getZ()
+					+ ".");
 			location.setType(Material.AIR);
 			location.getRelative(BlockFace.UP).setType(Material.AIR);
 
@@ -73,18 +70,31 @@ public class BlockPlace implements Listener {
 			SQLite.delete_unset_portal(uuid);
 
 			if (PortalCheck.is_valid_portal(unset) == false) {
-				player.sendMessage(ChatColor.RED + "Someone has broken the other "
-						+ "end of the portal, and as such the other end has been lost.");
-				Portals.instance.getLogger().info(player.getName() + "'s other portal was broken.");
+				Portals.instance.getLogger().info(player.getName() + "'s other portal was broken at"
+						+ " " + location.getWorld().getName()
+						+ " " + location.getX()
+						+ " " + location.getY()
+						+ " " + location.getZ()
+						+ ".");
 				return;
 			}
 
 			SQLite.insert_portal_pair(location, unset);
-			player.sendMessage(ChatColor.GREEN + "Your portals have successfully been set up.");
-			Portals.instance.getLogger().info(player.getName() + " successfully created a portal set.");
+			Portals.instance.getLogger().info(player.getName() + " successfully created a portal set to"
+					+ " " + unset.getWorld().getName()
+					+ " " + unset.getX()
+					+ " " + unset.getY()
+					+ " " + unset.getZ()
+					+ " by placing a portal at"
+					+ " " + location.getWorld().getName()
+					+ " " + location.getX()
+					+ " " + location.getY()
+					+ " " + location.getZ()
+					+ ".");
 
 			location.setType(Material.AIR);
 			location.getRelative(BlockFace.UP).setType(Material.AIR);	
 		}
 	}
 }
+

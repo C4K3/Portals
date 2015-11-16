@@ -2,7 +2,6 @@ package net.c4k3.Portals;
 
 import java.util.ArrayList;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -34,8 +33,8 @@ public class BlockBreak implements Listener {
 						+ portal.block.getY() + " " 
 						+ portal.block.getZ());
 				SQLite.delete_portal_pair(portal.id);
-				event.getPlayer().sendMessage(ChatColor.RED + "You have deactivated a portal.");
 			}
 		}
 	}
 }
+

@@ -18,10 +18,16 @@ public class PlayerToggleSneak implements Listener {
 		/* Check if player starts sneaking on top of obsidian */
 		if ( event.isSneaking() && PortalCheck.is_valid_portal(block) ) {
 			
-			Portals.instance.getLogger().info(player.getName() + " tried to use a portal by sneaking.");
+			Portals.instance.getLogger().info(player.getName() + " tried to use a portal by sneaking at"
+					+ " " + block.getWorld().getName()
+					+ " " + block.getX()
+					+ " " + block.getY()
+					+ " " + block.getZ()
+					+ ".");
 			PortalUtils.teleport(player);
 			
 		}
 	}
 	
 }
+

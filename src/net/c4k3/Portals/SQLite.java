@@ -378,3 +378,4 @@ public class SQLite {
 	}
 
 }
+
