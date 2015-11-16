@@ -1,6 +1,3 @@
 name: Portals
 main: net.c4k3.Portals.Portals
-version: 2
-commands:
-  portal:
-    description: Do things with portals.
+version: 3

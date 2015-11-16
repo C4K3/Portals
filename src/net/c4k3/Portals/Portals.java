@@ -17,12 +17,10 @@ public class Portals extends JavaPlugin {
 			dir.mkdir();
 		}
 
-		getCommand("portal").setExecutor(new PortalCommand());
 		getServer().getPluginManager().registerEvents(new BlockBreak(), this);
 		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 		getServer().getPluginManager().registerEvents(new PlayerToggleSneak(), this);
-
 
 		SQLite.connect();
 	}
