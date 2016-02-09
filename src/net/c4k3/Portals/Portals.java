@@ -1,12 +1,17 @@
 package net.c4k3.Portals;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Portals extends JavaPlugin {
 
 	public static JavaPlugin instance;
+	
+	public static List<Entity> justTeleportedEntities = new ArrayList<Entity>();
 
 	public void onEnable() {
 		instance = this;
@@ -21,6 +26,7 @@ public class Portals extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 		getServer().getPluginManager().registerEvents(new PlayerToggleSneak(), this);
+		getServer().getPluginManager().registerEvents(new BlockRedstone(), this);
 
 		SQLite.connect();
 	}
