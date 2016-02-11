@@ -1,4 +1,4 @@
-package net.c4k3.Portals;
+package net.simpvp.Portals;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;

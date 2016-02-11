@@ -1,4 +1,4 @@
-package net.c4k3.Portals;
+package net.simpvp.Portals;
 
 import java.io.File;
 import java.util.ArrayList;
