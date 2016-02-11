@@ -1,5 +1,7 @@
 package net.c4k3.Portals;
 
+import java.util.Collection;
+
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -38,9 +40,16 @@ public class PortalUtils {
 			return;
 		}
 		
+		/* Make sure a valid portal is at destination */
+		if (!PortalCheck.is_valid_portal(destination.getBlock())) {
+			Portals.instance.getLogger().info(entity.getName() + " destination portal frame is missing.");
+			return;
+		}
+		
+		
 		if (entity instanceof Player) {
 			
-			Portals.instance.getLogger().info("Teleporting 1"
+			Portals.instance.getLogger().info("Teleporting "
 					+ entity.getName() + " to " + destination.getWorld().getName()
 					+ " " + destination.getBlockX() + " " + destination.getBlockY() 
 					+ " " + destination.getBlockZ());
@@ -52,6 +61,8 @@ public class PortalUtils {
 					destination.getBlockX(), destination.getBlockY() - 1,
 					destination.getBlockZ());
 			((Player) entity).sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
+			
+			teleportNearby(location);
 		}
 		
 		entity.teleport(destination);
@@ -78,6 +89,26 @@ public class PortalUtils {
 				Portals.justTeleportedEntities.remove(entity);
 			}
 		}, 5L);
+	}
+	
+	/**
+	 * Teleports nearby non-player entities through a nearby portal
+	 * @param location location to check for a portal at
+	 */
+	public static void teleportNearby(Location location) {
+		
+		Collection<Entity> nearby = location.getWorld().getNearbyEntities(location, 2, 2, 2);
+		
+		if (nearby.isEmpty())
+			return;
+		
+		for (Entity entity : nearby) {
+			
+			if (entity instanceof Player)
+				continue;
+			
+			teleport(entity, location.getBlock());	
+		}
 	}
 	
 }

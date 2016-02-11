@@ -44,7 +44,7 @@ public class BlockRedstone implements Listener {
 						PortalUtils.teleport(entity, block);
 						
 						if (passenger instanceof Player) {
-							Portals.instance.getLogger().info("Teleporting 2"
+							Portals.instance.getLogger().info("Teleporting "
 									+ passenger.getName() + " to " + entity.getLocation().getWorld().getName()
 									+ " " + entity.getLocation().getBlockX() + " " + entity.getLocation().getBlockY() 
 									+ " " + entity.getLocation().getBlockZ());
