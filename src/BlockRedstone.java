@@ -35,7 +35,7 @@ public class BlockRedstone implements Listener {
 				continue;
 			}
 
-			if (Portals.justTeleportedEntities.contains(entity)) {
+			if (Portals.justTeleportedEntities.contains(entity.getUniqueId())) {
 				continue;
 			}
 

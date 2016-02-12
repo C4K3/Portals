@@ -3,6 +3,7 @@ package net.simpvp.Portals;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -11,7 +12,7 @@ public class Portals extends JavaPlugin {
 
 	public static JavaPlugin instance;
 
-	public static List<Entity> justTeleportedEntities = new ArrayList<Entity>();
+	public static List<UUID> justTeleportedEntities = new ArrayList<UUID>();
 
 	public void onEnable() {
 		instance = this;

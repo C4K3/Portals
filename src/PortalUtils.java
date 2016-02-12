@@ -1,6 +1,7 @@
 package net.simpvp.Portals;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -26,7 +27,7 @@ public class PortalUtils {
 	public static void teleport(Entity entity, Block portal) {
 
 		/* Check if the entity is trying to teleport again too fast */
-		if (Portals.justTeleportedEntities.contains(entity)) {
+		if (Portals.justTeleportedEntities.contains(entity.getUniqueId())) {
 			return;
 		}
 
@@ -78,12 +79,13 @@ public class PortalUtils {
 	 * Allows two way minecart travel and maybe fixes the instant death bug
 	 * @param entity entity to stop from teleporting again too soon
 	 */
-	public static void setTeleported(final Entity entity) {
-		Portals.justTeleportedEntities.add(entity);
+	public static void setTeleported(Entity entity) {
+		final UUID uuid = entity.getUniqueId();
+		Portals.justTeleportedEntities.add(uuid);
 
 		Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 			public void run() {
-				Portals.justTeleportedEntities.remove(entity);
+				Portals.justTeleportedEntities.remove(uuid);
 			}
 		}, 5L);
 	}
