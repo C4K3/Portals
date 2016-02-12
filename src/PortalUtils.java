@@ -11,67 +11,54 @@ import org.bukkit.entity.Player;
 public class PortalUtils {
 
 	/**
-	 * For teleporting the given entity using a portal found at it's location
-	 * @param entity entity who is trying to teleport
-	 */
-	public static void teleport(Entity entity) {
-		teleport(entity, null);
-	}
-
-	/**
 	 * For teleporting the given entity using a specific portal
 	 * @param entity entity who is trying to teleport
 	 * @param portal block to check for portal location at
 	 */
 	@SuppressWarnings("deprecation")
-	public static void teleport(Entity entity, Block portal) {
+	public static void teleport(Player player) {
 
-		/* Check if the entity is trying to teleport again too fast */
-		if (Portals.justTeleportedEntities.contains(entity.getUniqueId())) {
+		/* Check if the player is trying to teleport again too fast */
+		if (Portals.justTeleportedEntities.contains(player.getUniqueId())) {
 			return;
 		}
 
-		Location location = (portal == null) ? entity.getLocation() : portal.getLocation();
+		Location location = player.getLocation();
 
 		Location destination = SQLite.get_other_portal(location);
 
 		/* If this portal is not a Portals portal */
 		if (destination == null) {
-			Portals.instance.getLogger().info(entity.getName() + " destination was null.");
+			Portals.instance.getLogger().info(player.getName() + " destination was null.");
 			return;
 		}
 
 		/* Make sure a valid portal is at destination */
 		if (!PortalCheck.is_valid_portal(destination.getBlock())) {
-			Portals.instance.getLogger().info(entity.getName() + " destination portal frame is missing.");
+			Portals.instance.getLogger().info(player.getName() + " destination portal frame is missing.");
 			return;
 		}
 
-		if (entity instanceof Player) {
+		Portals.instance.getLogger().info("Teleporting "
+				+ player.getName() + " to " + destination.getWorld().getName()
+				+ " " + destination.getBlockX() + " " + destination.getBlockY() 
+				+ " " + destination.getBlockZ());
 
-			Portals.instance.getLogger().info("Teleporting "
-					+ entity.getName() + " to " + destination.getWorld().getName()
-					+ " " + destination.getBlockX() + " " + destination.getBlockY() 
-					+ " " + destination.getBlockZ());
+		/* workaround for laggy teleports, see
+		 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */
+		Location fLoc = new Location(destination.getWorld(),
+				destination.getBlockX(), destination.getBlockY() - 1,
+				destination.getBlockZ());
+		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
 
-			/* workaround for laggy teleports, see
-			 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */
-			Location fLoc = new Location(destination.getWorld(),
-					destination.getBlockX(), destination.getBlockY() - 1,
-					destination.getBlockZ());
-			((Player) entity).sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
+		teleportNearby(location, destination);
 
-			teleportNearby(location);
-		}
-
-		entity.teleport(destination);
+		player.teleport(destination);
 
 		/* Fix players from being stuck sneaking after a teleport*/
-		if (entity instanceof Player) {
-			((Player) entity).setSneaking(false);
-		}
+		player.setSneaking(false);
 
-		setTeleported(entity);
+		setTeleported(player);
 	}
 
 	/**
@@ -94,20 +81,24 @@ public class PortalUtils {
 	 * Teleports nearby non-player entities through a nearby portal
 	 * @param location location to check for a portal at
 	 */
-	public static void teleportNearby(Location location) {
+	public static void teleportNearby(Location from, Location destination) {
 
-		Collection<Entity> nearby = location.getWorld().getNearbyEntities(location, 2, 2, 2);
+		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 
 		if (nearby.isEmpty())
 			return;
 
 		for (Entity entity : nearby) {
-
 			if (entity instanceof Player)
 				continue;
 
-			teleport(entity, location.getBlock());	
+			if (Portals.justTeleportedEntities.contains(entity.getUniqueId()))
+				continue;
+
+			entity.teleport(destination);
+			setTeleported(entity);
 		}
+
 	}
 
 }

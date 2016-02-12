@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 public class BlockRedstone implements Listener {
 
 
+	/* FIXME: Needs to be re-written to work with latest PortalUtils update */
 	@EventHandler
 	public void onBlockRedstone(BlockRedstoneEvent event) {
 
@@ -47,7 +48,7 @@ public class BlockRedstone implements Listener {
 			Entity passenger = entity.getPassenger();
 			passenger.leaveVehicle();
 
-			PortalUtils.teleport(entity, block);
+			//PortalUtils.teleport(entity, block);
 
 			if (passenger instanceof Player) {
 				Portals.instance.getLogger().info("Teleporting "
