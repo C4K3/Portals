@@ -87,7 +87,7 @@ public class PortalUtils {
 			public void run() {
 				Portals.justTeleportedEntities.remove(uuid);
 			}
-		}, 5L);
+		}, 2 * 20L);
 	}
 
 	/**
