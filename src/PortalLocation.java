@@ -10,7 +10,7 @@ import org.bukkit.block.Block;
 public class PortalLocation {
 	public Block block;
 	public int id;
-	
+
 	public PortalLocation(Block block, int id) {
 		this.block = block;
 		this.id = id;

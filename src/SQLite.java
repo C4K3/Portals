@@ -40,35 +40,35 @@ public class SQLite {
 
 			switch (user_version) {
 
-			/* Database is brand new. Create tables */
-			case 0: {
-				Portals.instance.getLogger().info("Database not yet created. Creating ...");
-				String query =  "CREATE TABLE portal_pairs "
-						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-						+ "x INT,"
-						+ "y INT,"
-						+ "z INT,"
-						+ "world TEXT,"
-						+ "pair INTEGER);" // foreign key
+				/* Database is brand new. Create tables */
+				case 0: {
+						Portals.instance.getLogger().info("Database not yet created. Creating ...");
+						String query =  "CREATE TABLE portal_pairs "
+							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+							+ "x INT,"
+							+ "y INT,"
+							+ "z INT,"
+							+ "world TEXT,"
+							+ "pair INTEGER);" // foreign key
 
-						+ "CREATE TABLE unset_portals "
-						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-						+ "x INT,"
-						+ "y INT,"
-						+ "z INT,"
-						+ "world TEXT,"
-						+ "uuid BLOB);"
-						+ "PRAGMA user_version = 2;"; // of the creator
-				st.executeUpdate(query);
-				break;
-			}
-			case 1: {
-				Portals.instance.getLogger().info("Migrating to version 2 ...");
-				String query = "DROP TABLE purchased_portals;"
-						+ "PRAGMA user_version = 2;";
-				st.executeUpdate(query);
-				break;
-			}
+							+ "CREATE TABLE unset_portals "
+							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+							+ "x INT,"
+							+ "y INT,"
+							+ "z INT,"
+							+ "world TEXT,"
+							+ "uuid BLOB);"
+							+ "PRAGMA user_version = 2;"; // of the creator
+						st.executeUpdate(query);
+						break;
+				}
+				case 1: {
+						Portals.instance.getLogger().info("Migrating to version 2 ...");
+						String query = "DROP TABLE purchased_portals;"
+							+ "PRAGMA user_version = 2;";
+						st.executeUpdate(query);
+						break;
+				}
 
 			}
 
@@ -111,11 +111,11 @@ public class SQLite {
 			String world2 = portal2.getWorld().getName();
 
 			String query = "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES "
-					+ "('" + x1 + "', '" + y1 + "', '" + z1 + "', '" + world1 + "', '-1');"
-					+ "UPDATE portal_pairs SET pair = ((SELECT last_insert_rowid()) + 1) "
-					+ "WHERE id = (SELECT last_insert_rowid());"
-					+ "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES "
-					+ "('" + x2 + "', '" + y2 + "', '" + z2 + "', '" + world2 + "', (SELECT last_insert_rowid()));";
+				+ "('" + x1 + "', '" + y1 + "', '" + z1 + "', '" + world1 + "', '-1');"
+				+ "UPDATE portal_pairs SET pair = ((SELECT last_insert_rowid()) + 1) "
+				+ "WHERE id = (SELECT last_insert_rowid());"
+				+ "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES "
+				+ "('" + x2 + "', '" + y2 + "', '" + z2 + "', '" + world2 + "', (SELECT last_insert_rowid()));";
 
 			st.executeUpdate(query);
 			st.close();
@@ -132,7 +132,7 @@ public class SQLite {
 	public static void delete_portal_pair(int id) {
 		try {
 			String query = "DELETE FROM portal_pairs WHERE id IN "
-					+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = ?);";
+				+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = ?);";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setInt(1, id);
 			st.executeUpdate();
@@ -164,8 +164,8 @@ public class SQLite {
 
 		try {
 			String query = "SELECT * FROM portal_pairs WHERE id IN "
-					+ "(SELECT DISTINCT pair FROM portal_pairs "
-					+ "WHERE x = ? AND y = ? AND z = ? AND world = ?);";
+				+ "(SELECT DISTINCT pair FROM portal_pairs "
+				+ "WHERE x = ? AND y = ? AND z = ? AND world = ?);";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setInt(1, x);
 			st.setInt(2, y);
@@ -175,7 +175,7 @@ public class SQLite {
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
 				destination = new Location(Portals.instance.getServer().getWorld(
-						rs.getString("world")), (double) rs.getInt("x") + 0.5,
+							rs.getString("world")), (double) rs.getInt("x") + 0.5,
 						(double) rs.getInt("y"), (double) rs.getInt("z") + 0.5,
 						from.getYaw(), from.getPitch());
 			}
@@ -202,7 +202,7 @@ public class SQLite {
 
 		try {
 			String query = "SELECT id FROM portal_pairs "
-					+ "WHERE world = ? AND x = ? AND y = ? AND z = ?";
+				+ "WHERE world = ? AND x = ? AND y = ? AND z = ?";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setString(1, world);
 			st.setInt(2, x);
@@ -263,7 +263,7 @@ public class SQLite {
 
 		try {
 			String query = "SELECT id FROM unset_portals "
-					+ "WHERE world = ? AND x = ? AND y = ? AND z = ?";
+				+ "WHERE world = ? AND x = ? AND y = ? AND z = ?";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setString(1, world);
 			st.setInt(2, x);
@@ -296,7 +296,7 @@ public class SQLite {
 
 		try {
 			String query = "INSERT INTO unset_portals "
-					+ "(x, y, z, world, uuid) VALUES (?, ?, ?, ?, ?)";
+				+ "(x, y, z, world, uuid) VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setInt(1, x);
 			st.setInt(2, y);
@@ -349,9 +349,9 @@ public class SQLite {
 
 		try {
 			String query = "SELECT * FROM portal_pairs WHERE world = ? AND "
-					+ "x BETWEEN ? AND ? AND "
-					+ "y BETWEEN ? AND ? AND "
-					+ "z BETWEEN ? AND ?";
+				+ "x BETWEEN ? AND ? AND "
+				+ "y BETWEEN ? AND ? AND "
+				+ "z BETWEEN ? AND ?";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setString(1, world);
 			st.setInt(2, x - 1);

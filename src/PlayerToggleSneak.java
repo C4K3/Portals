@@ -8,16 +8,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 public class PlayerToggleSneak implements Listener {
-	
+
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
 	public void onPlayerToggleSneakEvent(PlayerToggleSneakEvent event) {
-		
+
 		Player player = event.getPlayer();
 		Block block = player.getLocation().getBlock();
-		
+
 		/* Check if player starts sneaking on top of obsidian */
 		if ( event.isSneaking() && PortalCheck.is_valid_portal(block) ) {
-			
+
 			Portals.instance.getLogger().info(player.getName() + " tried to use a portal by sneaking at"
 					+ " " + block.getWorld().getName()
 					+ " " + block.getX()
@@ -25,9 +25,9 @@ public class PlayerToggleSneak implements Listener {
 					+ " " + block.getZ()
 					+ ".");
 			PortalUtils.teleport(player);
-			
+
 		}
 	}
-	
+
 }
 

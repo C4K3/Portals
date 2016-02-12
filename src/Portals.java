@@ -10,7 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Portals extends JavaPlugin {
 
 	public static JavaPlugin instance;
-	
+
 	public static List<Entity> justTeleportedEntities = new ArrayList<Entity>();
 
 	public void onEnable() {
@@ -26,10 +26,10 @@ public class Portals extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 		getServer().getPluginManager().registerEvents(new PlayerToggleSneak(), this);
-		
+
 		/* Remove comment to enable minecart detection through portals */
 		/* getServer().getPluginManager().registerEvents(new BlockRedstone(), this); */
-		
+
 		SQLite.connect();
 	}
 

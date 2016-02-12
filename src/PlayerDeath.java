@@ -20,3 +20,4 @@ public class PlayerDeath implements Listener {
 		SQLite.delete_unset_portal(event.getEntity().getUniqueId());
 	}
 }
+

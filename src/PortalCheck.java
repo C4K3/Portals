@@ -23,11 +23,11 @@ public class PortalCheck {
 	 */
 	public static boolean is_valid_portal(Block portal, Block broken) {
 		BlockFace[] path_eastwest = {BlockFace.DOWN, BlockFace.EAST, BlockFace.UP,
-				BlockFace.UP, BlockFace.UP, BlockFace.WEST, BlockFace.WEST,
-				BlockFace.DOWN, BlockFace.DOWN, BlockFace.DOWN};
+			BlockFace.UP, BlockFace.UP, BlockFace.WEST, BlockFace.WEST,
+			BlockFace.DOWN, BlockFace.DOWN, BlockFace.DOWN};
 		BlockFace[] path_northsouth = {BlockFace.DOWN, BlockFace.SOUTH,
-				BlockFace.UP, BlockFace.UP, BlockFace.UP, BlockFace.NORTH,
-				BlockFace.NORTH, BlockFace.DOWN,BlockFace.DOWN, BlockFace.DOWN};
+			BlockFace.UP, BlockFace.UP, BlockFace.UP, BlockFace.NORTH,
+			BlockFace.NORTH, BlockFace.DOWN,BlockFace.DOWN, BlockFace.DOWN};
 
 		Block block = portal;
 		boolean eastwest_valid = true;
@@ -36,11 +36,11 @@ public class PortalCheck {
 			block = block.getRelative(path_eastwest[i]);
 			if (block.getType() != Material.OBSIDIAN 
 					|| (broken != null &&block.getX() == broken.getX() 
-					&& block.getY() == broken.getY() 
-					&& block.getZ() == broken.getZ())) {
+						&& block.getY() == broken.getY() 
+						&& block.getZ() == broken.getZ())) {
 				eastwest_valid = false;
 				break;
-			}
+						}
 		}
 
 		if (eastwest_valid)
@@ -51,8 +51,8 @@ public class PortalCheck {
 			block = block.getRelative(path_northsouth[i]);
 			if (block.getType() != Material.OBSIDIAN 
 					|| (broken != null && block.getX() == broken.getX() 
-					&& block.getY() == broken.getY() 
-					&& block.getZ() == broken.getZ()))
+						&& block.getY() == broken.getY() 
+						&& block.getZ() == broken.getZ()))
 				return false;
 		}
 		return true;

@@ -28,9 +28,9 @@ public class BlockPlace implements Listener {
 			location = event.getBlock().getRelative(BlockFace.DOWN);
 
 		if ((location.getType() != Material.DIAMOND_BLOCK 
-				|| location.getRelative(BlockFace.UP).getType() != Material.LAPIS_BLOCK)
+					|| location.getRelative(BlockFace.UP).getType() != Material.LAPIS_BLOCK)
 				&& (location.getType() != Material.LAPIS_BLOCK 
-				|| location.getRelative(BlockFace.UP).getType() != Material.DIAMOND_BLOCK))
+					|| location.getRelative(BlockFace.UP).getType() != Material.DIAMOND_BLOCK))
 			return;
 
 		if (PortalCheck.is_valid_portal(location) == false)
