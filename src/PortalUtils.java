@@ -77,9 +77,11 @@ public class PortalUtils {
 		}, 2 * 20L);
 	}
 
+
 	/**
 	 * Teleports nearby non-player entities through a nearby portal
-	 * @param location location to check for a portal at
+	 * @param location Location from which someone is being teleported
+	 * @param destination Location of the portal to which things are to be teleported
 	 */
 	public static void teleportNearby(Location from, Location destination) {
 
