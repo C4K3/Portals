@@ -2,11 +2,14 @@ package net.simpvp.Portals;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.EntityType;
 
 public class PortalUtils {
 
@@ -91,7 +94,7 @@ public class PortalUtils {
 			return;
 
 		for (Entity entity : nearby) {
-			if (entity instanceof Player)
+			if (!teleportable_entities.contains(entity.getType()))
 				continue;
 
 			if (Portals.justTeleportedEntities.contains(entity.getUniqueId()))
@@ -102,6 +105,56 @@ public class PortalUtils {
 		}
 
 	}
+
+	private static final HashSet<EntityType> teleportable_entities = new HashSet<EntityType>(Arrays.asList(
+				EntityType.ARMOR_STAND,
+				EntityType.ARROW,
+				EntityType.BAT,
+				EntityType.BLAZE,
+				EntityType.BOAT,
+				EntityType.CAVE_SPIDER,
+				EntityType.CHICKEN,
+				EntityType.COW,
+				EntityType.CREEPER,
+				EntityType.DROPPED_ITEM,
+				EntityType.EGG,
+				EntityType.ENDERMAN,
+				EntityType.ENDERMITE,
+				EntityType.EXPERIENCE_ORB,
+				EntityType.FALLING_BLOCK,
+				EntityType.FIREBALL,
+				EntityType.FIREWORK,
+				EntityType.GHAST,
+				EntityType.GUARDIAN,
+				EntityType.HORSE,
+				EntityType.IRON_GOLEM,
+				EntityType.MAGMA_CUBE,
+				EntityType.MINECART,
+				EntityType.MINECART_CHEST,
+				EntityType.MINECART_FURNACE,
+				EntityType.MINECART_HOPPER,
+				EntityType.MINECART_TNT,
+				EntityType.MUSHROOM_COW,
+				EntityType.OCELOT,
+				EntityType.PIG,
+				EntityType.PIG_ZOMBIE,
+				EntityType.PRIMED_TNT,
+				EntityType.RABBIT,
+				EntityType.SHEEP,
+				EntityType.SILVERFISH,
+				EntityType.SKELETON,
+				EntityType.SLIME,
+				EntityType.SMALL_FIREBALL,
+				EntityType.SNOWBALL,
+				EntityType.SNOWMAN,
+				EntityType.SPIDER,
+				EntityType.SPLASH_POTION,
+				EntityType.SQUID,
+				EntityType.VILLAGER,
+				EntityType.WITCH,
+				EntityType.WOLF,
+				EntityType.ZOMBIE
+					));
 
 }
 
