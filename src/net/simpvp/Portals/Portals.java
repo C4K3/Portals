@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.UUID;
 import java.util.HashSet;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Portals extends JavaPlugin {
@@ -26,7 +25,8 @@ public class Portals extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 		getServer().getPluginManager().registerEvents(new PlayerToggleSneak(), this);
-
+		getServer().getPluginManager().registerEvents(new ChunkUnload(), this);
+		
 		/* Remove comment to enable minecart detection through portals */
 		/* getServer().getPluginManager().registerEvents(new BlockRedstone(), this); */
 
