@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 
 public class PortalUtils {
 
@@ -53,11 +53,12 @@ public class PortalUtils {
 				destination.getBlockX(), destination.getBlockY() - 1,
 				destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
-
-		teleportNearby(location, destination);
-
+		
 		player.teleport(destination);
-
+		teleportNearby(location, destination);
+		
+		//reloadEntities(player, location, destination);
+		
 		/* Fix players from being stuck sneaking after a teleport*/
 		player.setSneaking(false);
 
@@ -80,13 +81,12 @@ public class PortalUtils {
 		}, 2 * 20L);
 	}
 
-
 	/**
 	 * Teleports nearby non-player entities through a nearby portal
 	 * @param location Location from which someone is being teleported
 	 * @param destination Location of the portal to which things are to be teleported
 	 */
-	public static void teleportNearby(Location from, Location destination) {
+	public static void teleportNearby(Location from, final Location destination) {
 
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 
@@ -99,11 +99,47 @@ public class PortalUtils {
 
 			if (Portals.justTeleportedEntities.contains(entity.getUniqueId()))
 				continue;
-
-			entity.teleport(destination);
+			
 			setTeleported(entity);
+			
+			/* Make sure mobs don't despawn because of players being too far away while teleporting */
+			boolean isPersistant = false;
+			if (entity instanceof LivingEntity) {
+				isPersistant = ((LivingEntity) entity).getRemoveWhenFarAway();
+				((LivingEntity) entity).setRemoveWhenFarAway(false);
+			}
+						
+			
+			
+			/* Delay teleport so the entity doesn't go invisible */
+			final Entity teleportEntity = entity;
+			final boolean isPersistantFinal = isPersistant;
+			
+			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
+				public void run() {
+					teleportEntity.teleport(destination);
+					
+					if (teleportEntity instanceof LivingEntity) {
+						((LivingEntity) teleportEntity).setRemoveWhenFarAway(isPersistantFinal);
+					}
+				}
+			}, 20L);
 		}
-
+	}
+	
+	/**
+	 * Teleports the player away and then back so that invisible entities are loaded
+	 * @param player Player to reload entities for
+	 */
+	public static void reloadEntities(final Player player, final Location location, final Location destination) {
+		
+		player.teleport(location);
+		
+		Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
+			public void run() {	
+				player.teleport(destination);
+			}
+		}, 1L);
 	}
 
 	private static final HashSet<EntityType> teleportable_entities = new HashSet<EntityType>(Arrays.asList(
