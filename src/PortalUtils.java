@@ -174,6 +174,7 @@ public class PortalUtils {
 				EntityType.OCELOT,
 				EntityType.PIG,
 				EntityType.PIG_ZOMBIE,
+				EntityType.POLAR_BEAR,
 				EntityType.PRIMED_TNT,
 				EntityType.RABBIT,
 				EntityType.SHEEP,
