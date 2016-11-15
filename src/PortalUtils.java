@@ -90,9 +90,6 @@ public class PortalUtils {
 
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 
-		if (nearby.isEmpty())
-			return;
-
 		for (Entity entity : nearby) {
 			if (!teleportable_entities.contains(entity.getType()))
 				continue;
