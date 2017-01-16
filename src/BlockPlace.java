@@ -10,7 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-//FIXME: Do it so that you can't place a portal where there already is a portal, also checkingu nplaced portals
+
 public class BlockPlace implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
