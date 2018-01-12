@@ -12,17 +12,17 @@ public class PlayerInteract implements Listener {
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		
+
 		if (event.getAction() == Action.PHYSICAL) {
-			
+
 			Player player = event.getPlayer();	
 			Block block = event.getClickedBlock();
-			
+
 			/* Other pressure plates seem to send multiple events when stepped on so only use wood and stone */
 			if (block.getType() != Material.STONE_PLATE && block.getType() != Material.WOOD_PLATE) {
 				return;
 			}
-			
+
 			if (PortalCheck.is_valid_portal(block)) {
 				Portals.instance.getLogger().info(player.getName() + " tried to use a portal by pressure plate at"
 						+ " " + block.getWorld().getName()

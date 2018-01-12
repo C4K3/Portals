@@ -25,7 +25,7 @@ public class PortalUtils {
 		if (Portals.justTeleportedEntities.contains(player.getUniqueId())) {
 			return;
 		}
-		
+
 		Location location = player.getLocation();
 		Location destination = SQLite.get_other_portal(portal);
 
@@ -34,7 +34,7 @@ public class PortalUtils {
 			Portals.instance.getLogger().info(player.getName() + " destination was null.");
 			return;
 		}
-		
+
 		/* Stop Yaw and Pitch from changing if portal location is not directly from player */
 		destination.setYaw(location.getYaw());
 		destination.setPitch(location.getPitch());
@@ -56,17 +56,17 @@ public class PortalUtils {
 				destination.getBlockX(), destination.getBlockY() - 1,
 				destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
-		
+
 		player.teleport(destination);		
 		teleportNearby(portal, destination);	
-	
+
 		/* Fix players from being stuck sneaking after a teleport*/
 		unsneak(player);
-		
+
 		setTeleported(player);
 	}
-	
-	
+
+
 	/**
 	 * For teleporting the given player using their current location
 	 * @param player player who is trying to teleport
@@ -75,7 +75,7 @@ public class PortalUtils {
 		Location location = player.getLocation();
 		teleport(player, location);
 	}
-	
+
 
 	/**
 	 * For limiting portal attempts
@@ -92,7 +92,7 @@ public class PortalUtils {
 			}
 		}, 20L);
 	}
-	
+
 	/**
 	 * For stopping a player from being locked sneaking after switching worlds with a Portal
 	 * @param player player to unsneak
@@ -113,32 +113,32 @@ public class PortalUtils {
 	public static void teleportNearby(Location from, final Location destination) {
 
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
-		
+
 		for (Entity entity : nearby) {
 			if (!teleportable_entities.contains(entity.getType()))
 				continue;
 
 			if (Portals.justTeleportedEntities.contains(entity.getUniqueId()))
 				continue;
-			
+
 			setTeleported(entity);
-			
+
 			/* Make sure mobs don't despawn because of players being too far away while teleporting */
 			boolean isPersistant = false;
 			if (entity instanceof LivingEntity) {
 				isPersistant = ((LivingEntity) entity).getRemoveWhenFarAway();
 				((LivingEntity) entity).setRemoveWhenFarAway(false);
 			}			
-			
-			
+
+
 			/* Delay teleport so the entity doesn't go invisible */
 			final Entity teleportEntity = entity;
 			final boolean isPersistantFinal = isPersistant;
-			
+
 			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 				public void run() {
 					teleportEntity.teleport(destination);
-				
+
 					if (teleportEntity instanceof LivingEntity) {
 						((LivingEntity) teleportEntity).setRemoveWhenFarAway(isPersistantFinal);
 					}
