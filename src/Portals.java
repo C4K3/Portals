@@ -26,9 +26,7 @@ public class Portals extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 		getServer().getPluginManager().registerEvents(new PlayerToggleSneak(), this);
 		getServer().getPluginManager().registerEvents(new ChunkUnload(), this);
-		
-		/* Remove comment to enable minecart detection through portals */
-		/* getServer().getPluginManager().registerEvents(new BlockRedstone(), this); */
+		getServer().getPluginManager().registerEvents(new PlayerInteract(), this);
 
 		SQLite.connect();
 	}

@@ -1,40 +1,43 @@
 package net.simpvp.Portals;
 
-import java.util.Collection;
-import java.util.UUID;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 public class PortalUtils {
 
 	/**
-	 * For teleporting the given entity using a specific portal
-	 * @param entity entity who is trying to teleport
+	 * For teleporting the given player using a specific portal
+	 * @param player player who is trying to teleport
 	 * @param portal block to check for portal location at
 	 */
 	@SuppressWarnings("deprecation")
-	public static void teleport(Player player) {
+	public static void teleport(Player player, Location portal) {
 
 		/* Check if the player is trying to teleport again too fast */
 		if (Portals.justTeleportedEntities.contains(player.getUniqueId())) {
 			return;
 		}
-
+		
 		Location location = player.getLocation();
-
-		Location destination = SQLite.get_other_portal(location);
+		Location destination = SQLite.get_other_portal(portal);
 
 		/* If this portal is not a Portals portal */
 		if (destination == null) {
 			Portals.instance.getLogger().info(player.getName() + " destination was null.");
 			return;
 		}
+		
+		/* Stop Yaw and Pitch from changing if portal location is not directly from player */
+		destination.setYaw(location.getYaw());
+		destination.setPitch(location.getPitch());
 
 		/* Make sure a valid portal is at destination */
 		if (!PortalCheck.is_valid_portal(destination.getBlock())) {
@@ -54,16 +57,25 @@ public class PortalUtils {
 				destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
 		
-		player.teleport(destination);
-		teleportNearby(location, destination);
-		
-		//reloadEntities(player, location, destination);
-		
+		player.teleport(destination);		
+		teleportNearby(portal, destination);	
+	
 		/* Fix players from being stuck sneaking after a teleport*/
-		player.setSneaking(false);
-
+		unsneak(player);
+		
 		setTeleported(player);
 	}
+	
+	
+	/**
+	 * For teleporting the given player using their current location
+	 * @param player player who is trying to teleport
+	 */
+	public static void teleport(Player player) {
+		Location location = player.getLocation();
+		teleport(player, location);
+	}
+	
 
 	/**
 	 * For limiting portal attempts
@@ -78,7 +90,19 @@ public class PortalUtils {
 			public void run() {
 				Portals.justTeleportedEntities.remove(uuid);
 			}
-		}, 2 * 20L);
+		}, 20L);
+	}
+	
+	/**
+	 * For stopping a player from being locked sneaking after switching worlds with a Portal
+	 * @param player player to unsneak
+	 */
+	public static void unsneak(final Player player) {	
+		Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
+			public void run() {
+				player.setSneaking(false);
+			}
+		}, 1L);
 	}
 
 	/**
@@ -89,7 +113,7 @@ public class PortalUtils {
 	public static void teleportNearby(Location from, final Location destination) {
 
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
-
+		
 		for (Entity entity : nearby) {
 			if (!teleportable_entities.contains(entity.getType()))
 				continue;
@@ -104,8 +128,7 @@ public class PortalUtils {
 			if (entity instanceof LivingEntity) {
 				isPersistant = ((LivingEntity) entity).getRemoveWhenFarAway();
 				((LivingEntity) entity).setRemoveWhenFarAway(false);
-			}
-						
+			}			
 			
 			
 			/* Delay teleport so the entity doesn't go invisible */
@@ -115,28 +138,13 @@ public class PortalUtils {
 			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 				public void run() {
 					teleportEntity.teleport(destination);
-					
+				
 					if (teleportEntity instanceof LivingEntity) {
 						((LivingEntity) teleportEntity).setRemoveWhenFarAway(isPersistantFinal);
 					}
 				}
 			}, 20L);
 		}
-	}
-	
-	/**
-	 * Teleports the player away and then back so that invisible entities are loaded
-	 * @param player Player to reload entities for
-	 */
-	public static void reloadEntities(final Player player, final Location location, final Location destination) {
-		
-		player.teleport(location);
-		
-		Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
-			public void run() {	
-				player.teleport(destination);
-			}
-		}, 1L);
 	}
 
 	private static final HashSet<EntityType> teleportable_entities = new HashSet<EntityType>(Arrays.asList(
