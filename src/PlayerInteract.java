@@ -23,16 +23,22 @@ public class PlayerInteract implements Listener {
 				return;
 			}
 
-			if (PortalCheck.is_valid_portal(block)) {
-				Portals.instance.getLogger().info(player.getName() + " tried to use a portal by pressure plate at"
-						+ " " + block.getWorld().getName()
-						+ " " + block.getX()
-						+ " " + block.getY()
-						+ " " + block.getZ()
-						+ ".");
-				PortalUtils.teleport(player, block.getLocation());
+			if (!PortalCheck.is_valid_portal(block)) {	
+				return;
 			}
+
+			/* Short delay to stop players from teleporting to the wrong loation */
+			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
+				public void run() {
+					Portals.instance.getLogger().info(player.getName() + " tried to use a portal by pressure plate at"
+							+ " " + block.getWorld().getName()
+							+ " " + block.getX()
+							+ " " + block.getY()
+							+ " " + block.getZ()
+							+ ".");
+					PortalUtils.teleport(player, block.getLocation());
+				}
+			}, 1L);
 		}
 	}
-
 }
