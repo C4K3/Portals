@@ -56,6 +56,10 @@ public class PortalUtils {
 				destination.getBlockX(), destination.getBlockY() - 1,
 				destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
+		fLoc = new Location(destination.getWorld(),
+				destination.getBlockX(), destination.getBlockY(),
+				destination.getBlockZ());
+		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
 
 		player.teleport(destination);		
 		teleportNearby(portal, destination);	
