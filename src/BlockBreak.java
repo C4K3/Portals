@@ -26,11 +26,11 @@ public class BlockBreak implements Listener {
 
 		for (PortalLocation portal : portals) {
 			if (PortalCheck.is_valid_portal(portal.block, block) == false) {
-				Portals.instance.getLogger().info("Query returned positive. "
-						+ "Disabling this portal at " 
-						+ portal.block.getWorld().getName() + " " 
-						+ portal.block.getX() + " " 
-						+ portal.block.getY() + " " 
+				Portals.instance.getLogger().info("Query returned positive by " + event.getPlayer().getName()
+						+ ". Disabling this portal at "
+						+ portal.block.getWorld().getName() + " "
+						+ portal.block.getX() + " "
+						+ portal.block.getY() + " "
 						+ portal.block.getZ());
 				SQLite.delete_portal_pair(portal.id);
 			}
