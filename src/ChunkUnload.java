@@ -9,13 +9,11 @@ public class ChunkUnload implements Listener {
 
 	@EventHandler
 	public void onChunkUnload(ChunkUnloadEvent event) {
-		
 		/* Do not let chunks containing entities about to be teleported unload */
 		for (Entity entity : event.getChunk().getEntities()) {
 			if (Portals.justTeleportedEntities.contains(entity.getUniqueId())) {
 				event.setCancelled(true);
-			}	
+			}
 		}
-		
 	}
 }
