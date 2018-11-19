@@ -19,7 +19,7 @@ public class PlayerInteract implements Listener {
 			Block block = event.getClickedBlock();
 
 			/* Other pressure plates seem to send multiple events when stepped on so only use wood and stone */
-			if (block.getType() != Material.STONE_PLATE && block.getType() != Material.WOOD_PLATE) {
+			if (is_invalid_pressure_plate(block.getType())) {
 				return;
 			}
 
@@ -39,6 +39,23 @@ public class PlayerInteract implements Listener {
 					PortalUtils.teleport(player, block.getLocation());
 				}
 			}, 1L);
+		}
+	}
+
+	/** Returns true if it's not a stone or wooden pressure plate */
+	private boolean is_invalid_pressure_plate(Material block) {
+		if (
+		block == Material.ACACIA_PRESSURE_PLATE
+		|| block == Material.BIRCH_PRESSURE_PLATE
+		|| block == Material.DARK_OAK_PRESSURE_PLATE
+		|| block == Material.JUNGLE_PRESSURE_PLATE
+		|| block == Material.OAK_PRESSURE_PLATE
+		|| block == Material.SPRUCE_PRESSURE_PLATE
+		|| block == Material.STONE_PRESSURE_PLATE
+				) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
