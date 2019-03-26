@@ -1,10 +1,13 @@
 package net.simpvp.Portals;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -68,6 +71,7 @@ public class PortalUtils {
 		unsneak(player);
 
 		setTeleported(player);
+		aprilFools(player);
 	}
 
 
@@ -243,5 +247,45 @@ public class PortalUtils {
 			EntityType.ZOMBIE_VILLAGER 		
 					));
 
+	
+	private static HashSet<UUID> alreadyPranked = new HashSet<UUID>();
+	
+	public static void aprilFools(Player player) {	
+		
+		/* Only do april fools on ..april fools.. */
+		Calendar now = Calendar.getInstance();
+		if (now.get(Calendar.MONTH) != Calendar.APRIL || now.get(Calendar.DAY_OF_MONTH) != 1) {
+			return;
+		}
+		
+		
+		/* Only prank each player once (per restart) to avoid a spam of purple messages */
+		if (alreadyPranked.contains(player.getUniqueId())) {
+			return;
+		}
+		alreadyPranked.add(player.getUniqueId());
+		
+		
+		/* Show real location to the player who used portal */
+		Location l = player.getLocation();
+		player.sendMessage(ChatColor.LIGHT_PURPLE + "[Server] " + player.getName()
+				+ " used portal at X:" + l.getBlockX()
+				+ " Y:" + l.getBlockY()
+				+ " Z:" + l.getBlockZ());
+		
+		/* Create fake location for everyone else */
+		int maxdist = 500000;
+		int randX = ThreadLocalRandom.current().nextInt(-maxdist, maxdist + 1);
+		int randY = ThreadLocalRandom.current().nextInt(10, 101);
+		int randZ = ThreadLocalRandom.current().nextInt(-maxdist, maxdist + 1);
+	
+		for (Player p : Portals.instance.getServer().getOnlinePlayers()) {
+			if (p == player) continue;
+			p.sendMessage(ChatColor.LIGHT_PURPLE + "[Server] " + player.getName()
+				+ " used portal at X:" + randX
+				+ " Y:" + randY
+				+ " Z:" + randZ);
+		}	
+	}
 }
 
