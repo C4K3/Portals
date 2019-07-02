@@ -12,7 +12,7 @@ public class ChunkUnload implements Listener {
 		/* Do not let chunks containing entities about to be teleported unload */
 		for (Entity entity : event.getChunk().getEntities()) {
 			if (Portals.justTeleportedEntities.contains(entity.getUniqueId())) {
-				event.setCancelled(true);
+				Portals.instance.getLogger().warning("Would have prevented unload of chunk (" + event.getChunk().getX() + ", " + event.getChunk().getZ() + "), but it is not possible with 14.x Bukkit API");
 			}
 		}
 	}
