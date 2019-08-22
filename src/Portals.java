@@ -25,7 +25,6 @@ public class Portals extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
 		getServer().getPluginManager().registerEvents(new PlayerToggleSneak(), this);
-		getServer().getPluginManager().registerEvents(new ChunkUnload(), this);
 		getServer().getPluginManager().registerEvents(new PlayerInteract(), this);
 
 		SQLite.connect();
