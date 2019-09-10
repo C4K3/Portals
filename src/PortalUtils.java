@@ -119,7 +119,7 @@ public class PortalUtils {
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 
 		for (Entity entity : nearby) {
-			if (!teleportable_entities.contains(entity.getType()))
+			if (!TELEPORTABLE_ENTITIES.contains(entity.getType()))
 				continue;
 
 			if (Portals.justTeleportedEntities.contains(entity.getUniqueId()))
@@ -151,18 +151,19 @@ public class PortalUtils {
 		}
 	}
 
-	private static final HashSet<EntityType> teleportable_entities = new HashSet<EntityType>(Arrays.asList(
+	private static final HashSet<EntityType> TELEPORTABLE_ENTITIES = new HashSet<EntityType>(Arrays.asList(
 			// EntityType.AREA_EFFECT_CLOUD,
 			// EntityType.ARMOR_STAND,
 			EntityType.ARROW,
 			EntityType.BAT,
 			EntityType.BLAZE, 
 			EntityType.BOAT,
+			EntityType.CAT,
 			EntityType.CAVE_SPIDER, 
 			EntityType.CHICKEN, 
-			// EntityType.COMPLEX_PART, 
 			EntityType.COW, 
 			EntityType.CREEPER, 
+			EntityType.DOLPHIN,
 			EntityType.DONKEY, 
 			// EntityType.DRAGON_FIREBALL,
 			EntityType.DROPPED_ITEM,
@@ -181,16 +182,17 @@ public class PortalUtils {
 			EntityType.FIREBALL,
 			// EntityType.FIREWORK,
 			// EntityType.FISHING_HOOK,
+			EntityType.FOX,
 			EntityType.GHAST, 
 			// EntityType.GIANT, 
 			EntityType.GUARDIAN, 
 			EntityType.HORSE, 
-			EntityType.HUSK, 
+			EntityType.HUSK,
+			EntityType.ILLUSIONER,
 			EntityType.IRON_GOLEM, 
 			// EntityType.ITEM_FRAME,
 			// EntityType.LEASH_HITCH,
 			// EntityType.LIGHTNING,
-			// EntityType.LINGERING_POTION,
 			EntityType.LLAMA, 
 			// EntityType.LLAMA_SPIT, 
 			EntityType.MAGMA_CUBE, 
@@ -205,12 +207,19 @@ public class PortalUtils {
 			EntityType.MUSHROOM_COW, 
 			EntityType.OCELOT, 
 			// EntityType.PAINTING,
+			EntityType.PANDA,
+			EntityType.PARROT,
+			EntityType.PHANTOM,
 			EntityType.PIG, 
-			EntityType.PIG_ZOMBIE, 
+			EntityType.PIG_ZOMBIE,
+			EntityType.PILLAGER,
 			// EntityType.PLAYER, 
 			EntityType.POLAR_BEAR, 
 			EntityType.PRIMED_TNT,
-			EntityType.RABBIT, 
+			EntityType.PUFFERFISH,
+			EntityType.RABBIT,
+			EntityType.RAVAGER,
+			EntityType.SALMON,
 			EntityType.SHEEP, 
 			EntityType.SHULKER, 
 			// EntityType.SHULKER_BULLET,
@@ -227,12 +236,15 @@ public class PortalUtils {
 			EntityType.SQUID, 
 			EntityType.STRAY, 
 			// EntityType.THROWN_EXP_BOTTLE,
-			// EntityType.TIPPED_ARROW,
+			EntityType.TRADER_LLAMA,
+			// EntityType.TRIDENT,
+			EntityType.TROPICAL_FISH,
+			EntityType.TURTLE,
 			// EntityType.UNKNOWN,
 			EntityType.VEX, 
 			EntityType.VILLAGER, 
-			EntityType.VINDICATOR, 
-			// EntityType.WEATHER, 
+			EntityType.VINDICATOR,
+			EntityType.WANDERING_TRADER,
 			EntityType.WITCH, 
 			// EntityType.WITHER, 
 			EntityType.WITHER_SKELETON, 

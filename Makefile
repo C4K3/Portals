@@ -1,4 +1,4 @@
-BUKKIT=../bukkit-1.13.1B1.jar
+BUKKIT=../bukkit-1.14.4.jar
 JAVA=1.8
 PLUGIN=Portals
 TARGET_DIR=net
