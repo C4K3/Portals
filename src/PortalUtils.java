@@ -62,7 +62,9 @@ public class PortalUtils {
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
 
 		player.teleport(destination);		
-		teleportNearby(portal, destination);	
+		// FIXME teleportNearby is disabled because of reports of it being
+		// possible to dupe items.
+		//teleportNearby(portal, destination);	
 
 		/* Fix players from being stuck sneaking after a teleport*/
 		unsneak(player);
