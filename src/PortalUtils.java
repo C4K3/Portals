@@ -61,10 +61,8 @@ public class PortalUtils {
 				destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
 
-		player.teleport(destination);		
-		// FIXME teleportNearby is disabled because of reports of it being
-		// possible to dupe items.
-		//teleportNearby(portal, destination);	
+		player.teleport(destination);	
+		teleportNearby(portal, destination, player);
 
 		/* Fix players from being stuck sneaking after a teleport*/
 		unsneak(player);
@@ -115,41 +113,34 @@ public class PortalUtils {
 	 * Teleports nearby non-player entities through a nearby portal
 	 * @param location Location from which someone is being teleported
 	 * @param destination Location of the portal to which things are to be teleported
+	 * @param player player who used the portal and may have to be teleported again to stop visual bug
 	 */
-	public static void teleportNearby(Location from, final Location destination) {
-
+	public static void teleportNearby(Location from, final Location destination, Player player) {
+		/* First teleport all entities at the same time as the player 
+		 * The delay in previous versions seems to cause the duplication bug */
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
-
+		boolean somethingTeleported = false;
 		for (Entity entity : nearby) {
 			if (!TELEPORTABLE_ENTITIES.contains(entity.getType()))
 				continue;
 
-			if (Portals.justTeleportedEntities.contains(entity.getUniqueId()))
-				continue;
+			entity.teleport(destination);
+			somethingTeleported = true;
+		}
 
-			setTeleported(entity);
-
-			/* Make sure mobs don't despawn because of players being too far away while teleporting */
-			boolean isPersistant = false;
-			if (entity instanceof LivingEntity) {
-				isPersistant = ((LivingEntity) entity).getRemoveWhenFarAway();
-				((LivingEntity) entity).setRemoveWhenFarAway(false);
-			}			
-
-
-			/* Delay teleport so the entity doesn't go invisible */
-			final Entity teleportEntity = entity;
-			final boolean isPersistantFinal = isPersistant;
-
+		/* A bug seems to make all the entities invisible for just the player who used the portal.
+		 * Teleporting the player to the original location and then back seems to fix this. */
+		if (somethingTeleported) { // Only bother reteleporting players if an entity came with them
 			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 				public void run() {
-					teleportEntity.teleport(destination);
-
-					if (teleportEntity instanceof LivingEntity) {
-						((LivingEntity) teleportEntity).setRemoveWhenFarAway(isPersistantFinal);
-					}
+					player.teleport(from);
 				}
-			}, 20L);
+			}, 1L);
+			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
+				public void run() {
+					player.teleport(destination);
+				}
+			}, 2L);
 		}
 	}
 
