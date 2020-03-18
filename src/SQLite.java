@@ -50,6 +50,8 @@ public class SQLite {
 							+ "z INT,"
 							+ "world TEXT,"
 							+ "pair INTEGER);" // foreign key
+							+ "CREATE INDEX idx_portal_pairs_id ON portal_pairs (id);"
+							+ "CREATE INDEX idx_portal_pairs_coords ON portal_pairs (world, x, y, z);"
 
 							+ "CREATE TABLE unset_portals "
 							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -58,7 +60,9 @@ public class SQLite {
 							+ "z INT,"
 							+ "world TEXT,"
 							+ "uuid BLOB);"
-							+ "PRAGMA user_version = 2;"; // of the creator
+							+ "PRAGMA user_version = 2;" // of the creator
+							+ "CREATE INDEX idx_unset_portals_uuid ON unset_portals (uuid);"
+							+ "CREATE INDEX idx_unset_portals_coords ON unset_portals (world, x, y, z);";
 						st.executeUpdate(query);
 						break;
 				}
@@ -66,6 +70,17 @@ public class SQLite {
 						Portals.instance.getLogger().info("Migrating to version 2 ...");
 						String query = "DROP TABLE purchased_portals;"
 							+ "PRAGMA user_version = 2;";
+						st.executeUpdate(query);
+						break;
+				}
+
+				case 2: {
+						Portals.instance.getLogger().info("Migrating to version 3 ...");
+						String query = "CREATE INDEX idx_portal_pairs_id ON portal_pairs (id);"
+							+ "CREATE INDEX idx_portal_pairs_coords ON portal_pairs (world, x, y, z);"
+							+ "CREATE INDEX idx_unset_portals_uuid ON unset_portals (uuid);"
+							+ "CREATE INDEX idx_unset_portals_coords ON unset_portals (world, x, y, z);"
+							+ "PRAGMA user_version = 3;";
 						st.executeUpdate(query);
 						break;
 				}
