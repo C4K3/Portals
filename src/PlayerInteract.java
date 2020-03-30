@@ -15,7 +15,7 @@ public class PlayerInteract implements Listener {
 
 		if (event.getAction() == Action.PHYSICAL) {
 
-			Player player = event.getPlayer();	
+			Player player = event.getPlayer();
 			Block block = event.getClickedBlock();
 
 			/* Other pressure plates seem to send multiple events when stepped on so only use wood and stone */
@@ -23,7 +23,7 @@ public class PlayerInteract implements Listener {
 				return;
 			}
 
-			if (!PortalCheck.is_valid_portal(block)) {	
+			if (!PortalCheck.is_valid_portal(block)) {
 				return;
 			}
 

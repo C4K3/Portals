@@ -144,17 +144,23 @@ public class SQLite {
 	 * Delete a portal pair by id.
 	 * @param id id (PK) of one of the portals.
 	 */
-	public static void delete_portal_pair(int id) {
+	public static void delete_portal_pair(PortalLocation portal) {
+		Portals.instance.getLogger().info("Disabling this portal at "
+				+ portal.block.getWorld().getName() + " "
+				+ portal.block.getX() + " "
+				+ portal.block.getY() + " "
+				+ portal.block.getZ());
+
 		try {
 			String query = "DELETE FROM portal_pairs WHERE id IN "
 				+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = ?);";
 			PreparedStatement st = conn.prepareStatement(query);
-			st.setInt(1, id);
+			st.setInt(1, portal.id);
 			st.executeUpdate();
 
 			query = "DELETE FROM portal_pairs WHERE id = ?";
 			st = conn.prepareStatement(query);
-			st.setInt(1, id);
+			st.setInt(1, portal.id);
 			st.executeUpdate();
 			st.close();
 

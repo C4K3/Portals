@@ -42,6 +42,7 @@ public class PortalUtils {
 		/* Make sure a valid portal is at destination */
 		if (!PortalCheck.is_valid_portal(destination.getBlock())) {
 			Portals.instance.getLogger().info(player.getName() + " destination portal frame is missing.");
+
 			return;
 		}
 
