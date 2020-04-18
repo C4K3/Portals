@@ -19,6 +19,7 @@ public class SQLite {
 	/**
 	 * Opens the SQLite connection.
 	 */
+	@SuppressWarnings("fallthrough")
 	public static void connect() {
 
 		/* Where the last part is the name of the database file */
@@ -37,58 +38,63 @@ public class SQLite {
 			int user_version = rs.getInt("user_version");
 
 			rs.close();
+			st.close();
 
 			switch (user_version) {
 
 				/* Database is brand new. Create tables */
 				case 0: {
-						Portals.instance.getLogger().info("Database not yet created. Creating ...");
-						String query =  "CREATE TABLE portal_pairs "
-							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "x INT,"
-							+ "y INT,"
-							+ "z INT,"
-							+ "world TEXT,"
-							+ "pair INTEGER);" // foreign key
-							+ "CREATE INDEX idx_portal_pairs_id ON portal_pairs (id);"
-							+ "CREATE INDEX idx_portal_pairs_coords ON portal_pairs (world, x, y, z);"
+					Portals.instance.getLogger().info("Database not yet created. Creating ...");
+					String query = ""
+						+ "CREATE TABLE portal_pairs "
+						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "x INT,"
+						+ "y INT,"
+						+ "z INT,"
+						+ "world TEXT,"
+						+ "pair INTEGER);" // foreign key
 
-							+ "CREATE TABLE unset_portals "
-							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
-							+ "x INT,"
-							+ "y INT,"
-							+ "z INT,"
-							+ "world TEXT,"
-							+ "uuid BLOB);"
-							+ "PRAGMA user_version = 2;" // of the creator
-							+ "CREATE INDEX idx_unset_portals_uuid ON unset_portals (uuid);"
-							+ "CREATE INDEX idx_unset_portals_coords ON unset_portals (world, x, y, z);";
-						st.executeUpdate(query);
-						break;
+						+ "CREATE TABLE unset_portals "
+						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "x INT,"
+						+ "y INT,"
+						+ "z INT,"
+						+ "world TEXT,"
+						+ "uuid BLOB);" // of the creator
+
+						+ "CREATE TABLE purchased_portals "
+						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+						+ "uuid BLOB,"
+						+ "amount INT);"
+
+						+ "PRAGMA user_version = 1;";
+					st = conn.createStatement();
+					st.executeUpdate(query);
+					st.close();
 				}
 				case 1: {
-						Portals.instance.getLogger().info("Migrating to version 2 ...");
-						String query = "DROP TABLE purchased_portals;"
-							+ "PRAGMA user_version = 2;";
-						st.executeUpdate(query);
-						break;
+					Portals.instance.getLogger().info("Migrating to version 2 ...");
+					String query = ""
+						+ "DROP TABLE purchased_portals;"
+						+ "PRAGMA user_version = 2;";
+					st = conn.createStatement();
+					st.executeUpdate(query);
+					st.close();
 				}
 
 				case 2: {
-						Portals.instance.getLogger().info("Migrating to version 3 ...");
-						String query = "CREATE INDEX idx_portal_pairs_id ON portal_pairs (id);"
-							+ "CREATE INDEX idx_portal_pairs_coords ON portal_pairs (world, x, y, z);"
-							+ "CREATE INDEX idx_unset_portals_uuid ON unset_portals (uuid);"
-							+ "CREATE INDEX idx_unset_portals_coords ON unset_portals (world, x, y, z);"
-							+ "PRAGMA user_version = 3;";
-						st.executeUpdate(query);
-						break;
+					Portals.instance.getLogger().info("Migrating to version 3 ...");
+					String query = ""
+						+ "CREATE INDEX idx_portal_pairs_id ON portal_pairs (id);"
+						+ "CREATE INDEX idx_portal_pairs_coords ON portal_pairs (world, x, y, z);"
+						+ "CREATE INDEX idx_unset_portals_uuid ON unset_portals (uuid);"
+						+ "CREATE INDEX idx_unset_portals_coords ON unset_portals (world, x, y, z);"
+						+ "PRAGMA user_version = 3;";
+					st = conn.createStatement();
+					st.executeUpdate(query);
+					st.close();
 				}
-
 			}
-
-			st.close();
-
 		} catch ( Exception e ) {
 			Portals.instance.getLogger().info(e.getMessage());
 			return;
