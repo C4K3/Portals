@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Sittable;
 
 public class PortalUtils {
 
@@ -122,8 +123,15 @@ public class PortalUtils {
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 		boolean somethingTeleported = false;
 		for (Entity entity : nearby) {
-			if (!TELEPORTABLE_ENTITIES.contains(entity.getType()))
+			if (!TELEPORTABLE_ENTITIES.contains(entity.getType())) {
 				continue;
+			}
+
+			if (entity instanceof Sittable) {
+				if (((Sittable) entity).isSitting()) {
+					continue;
+				}
+			}
 
 			entity.teleport(destination);
 			somethingTeleported = true;
