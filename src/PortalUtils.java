@@ -188,6 +188,7 @@ public class PortalUtils {
 			EntityType.GHAST,
 			// EntityType.GIANT,
 			EntityType.GUARDIAN,
+			EntityType.HOGLIN,
 			EntityType.HORSE,
 			EntityType.HUSK,
 			EntityType.ILLUSIONER,
@@ -213,7 +214,8 @@ public class PortalUtils {
 			EntityType.PARROT,
 			// EntityType.PHANTOM,
 			EntityType.PIG,
-			EntityType.PIG_ZOMBIE,
+			EntityType.PIGLIN,
+			EntityType.PIGLIN_BRUTE,
 			EntityType.PILLAGER,
 			// EntityType.PLAYER,
 			EntityType.POLAR_BEAR,
@@ -237,6 +239,7 @@ public class PortalUtils {
 			// EntityType.SPLASH_POTION,
 			EntityType.SQUID,
 			EntityType.STRAY,
+			EntityType.STRIDER,
 			// EntityType.THROWN_EXP_BOTTLE,
 			EntityType.TRADER_LLAMA,
 			// EntityType.TRIDENT,
@@ -252,9 +255,11 @@ public class PortalUtils {
 			EntityType.WITHER_SKELETON,
 			// EntityType.WITHER_SKULL,
 			EntityType.WOLF,
+			EntityType.ZOGLIN,
 			EntityType.ZOMBIE,
 			EntityType.ZOMBIE_HORSE,
-			EntityType.ZOMBIE_VILLAGER
+			EntityType.ZOMBIE_VILLAGER,
+			EntityType.ZOMBIFIED_PIGLIN
 					));
 
 }
