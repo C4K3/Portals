@@ -34,7 +34,7 @@ public class PortalCheck {
 
 		for (int i = 0; i < path_eastwest.length; i++) {
 			block = block.getRelative(path_eastwest[i]);
-			if (block.getType() != Material.OBSIDIAN 
+			if (!Portals.FRAMES.contains(block.getType())
 					|| (broken != null &&block.getX() == broken.getX() 
 						&& block.getY() == broken.getY() 
 						&& block.getZ() == broken.getZ())) {
@@ -49,7 +49,7 @@ public class PortalCheck {
 		block = portal;
 		for (int i = 0; i < path_northsouth.length; i++) {
 			block = block.getRelative(path_northsouth[i]);
-			if (block.getType() != Material.OBSIDIAN 
+			if (!Portals.FRAMES.contains(block.getType())
 					|| (broken != null && block.getX() == broken.getX() 
 						&& block.getY() == broken.getY() 
 						&& block.getZ() == broken.getZ()))

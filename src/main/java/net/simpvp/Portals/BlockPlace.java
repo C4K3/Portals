@@ -18,7 +18,7 @@ public class BlockPlace implements Listener {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Material material = event.getBlock().getType();
 
-		if (material == Material.OBSIDIAN) {
+		if (Portals.FRAMES.contains(material)) {
 			check_obsi_placement(event);
 			return;
 		}
@@ -31,7 +31,7 @@ public class BlockPlace implements Listener {
 			return;
 
 		Block location = event.getBlock();
-		if (location.getRelative(BlockFace.DOWN).getType() != Material.OBSIDIAN)
+		if (!Portals.FRAMES.contains(location.getRelative(BlockFace.DOWN).getType()))
 			location = event.getBlock().getRelative(BlockFace.DOWN);
 
 		if ((location.getType() != Material.DIAMOND_BLOCK 

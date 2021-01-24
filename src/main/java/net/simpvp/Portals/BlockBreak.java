@@ -18,7 +18,7 @@ public class BlockBreak implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.getBlock().getType() != Material.OBSIDIAN)
+		if (!Portals.FRAMES.contains(event.getBlock().getType()))
 			return;
 
 		Block block = event.getBlock();

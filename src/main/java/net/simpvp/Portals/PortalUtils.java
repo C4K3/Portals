@@ -19,7 +19,6 @@ public class PortalUtils {
 	 * @param player player who is trying to teleport
 	 * @param portal block to check for portal location at
 	 */
-	@SuppressWarnings("deprecation")
 	public static void teleport(Player player, Location portal) {
 
 		/* Check if the player is trying to teleport again too fast */
@@ -57,11 +56,11 @@ public class PortalUtils {
 		Location fLoc = new Location(destination.getWorld(),
 				destination.getBlockX(), destination.getBlockY() - 1,
 				destination.getBlockZ());
-		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
+		player.sendBlockChange(fLoc, fLoc.getBlock().getBlockData());
 		fLoc = new Location(destination.getWorld(),
 				destination.getBlockX(), destination.getBlockY(),
 				destination.getBlockZ());
-		player.sendBlockChange(fLoc, fLoc.getBlock().getType(), fLoc.getBlock().getData());
+		player.sendBlockChange(fLoc, fLoc.getBlock().getBlockData());
 
 		player.teleport(destination);	
 		teleportNearby(portal, destination, player);
