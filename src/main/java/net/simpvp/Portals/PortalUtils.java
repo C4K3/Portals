@@ -155,7 +155,7 @@ public class PortalUtils {
 	private static final HashSet<EntityType> TELEPORTABLE_ENTITIES = new HashSet<EntityType>(Arrays.asList(
 			// EntityType.AREA_EFFECT_CLOUD,
 			// EntityType.ARMOR_STAND,
-			EntityType.ARROW,
+			//EntityType.ARROW,
 			EntityType.BAT,
 			EntityType.BLAZE,
 			EntityType.BOAT,
