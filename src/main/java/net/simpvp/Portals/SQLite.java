@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 public class SQLite {
 
@@ -66,6 +67,10 @@ public class SQLite {
 						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
 						+ "uuid BLOB,"
 						+ "amount INT);"
+						
+						+ "CREATE TABLE portal_users "
+						+ "(id INTEGER,"
+						+ "playername TEXT);"
 
 						+ "PRAGMA user_version = 1;";
 					st = conn.createStatement();
@@ -360,7 +365,7 @@ public class SQLite {
 	/**
 	 * For checking whether there is a portal at the given location.
 	 * 
-	 * Called whenever an obsidian block is destroyed, this checks whther
+	 * Called whenever an obsidian block is destroyed, this checks whether
 	 * that block was part of a portal here.
 	 * @param block The block that was broken.
 	 * @return An arraylist of PortalLocations for portals within range of
@@ -403,6 +408,48 @@ public class SQLite {
 
 		return locations;
 	}
+	
+	//add players that use a portal
+		public static void add_portal_user(Integer id, String playername) {
+			try {
+				String query = "INSERT INTO portal_users "
+						+ "(id, playername) VALUES (?, ?)";
+				PreparedStatement st = conn.prepareStatement(query);
+				st.setInt(1, id);
+				st.setString(2, playername);
 
+				st.executeUpdate();
+				st.close();
+			} catch (Exception e) {
+				Portals.instance.getLogger().info(e.getMessage());
+			}
+
+		}
+	
+	//Get list of all players that have used a portal
+	public static ArrayList<String> get_portal_users(Integer id) {
+		
+		ArrayList<String> UserList = new ArrayList<String>();
+		
+		try {
+			String query = "SELECT * FROM portal_users WHERE id = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1, id);
+
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				String user = rs.getString("uuid.toString");
+				UserList.add(new String(user));
+			}
+
+			rs.close();
+			st.close();
+		} catch (Exception e) {
+			Portals.instance.getLogger().info(e.getMessage());
+		}
+		return UserList;
+		
+	}
+	
 }
 
