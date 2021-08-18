@@ -1,10 +1,12 @@
 package net.simpvp.Portals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -28,6 +30,8 @@ public class PortalUtils {
 
 		Location location = player.getLocation();
 		Location destination = SQLite.get_other_portal(portal);
+		
+
 
 		/* If this portal is not a Portals portal */
 		if (destination == null) {
@@ -44,6 +48,19 @@ public class PortalUtils {
 			Portals.instance.getLogger().info(player.getName() + " destination portal frame is missing.");
 
 			return;
+		}
+		
+		Integer id = SQLite.get_portal_by_location(portal.getBlock());
+		ArrayList<String> portal_user_list = SQLite.get_portal_users(id);
+		
+		//Temporary debugging
+		Bukkit.broadcastMessage(id.toString());
+		Bukkit.broadcastMessage(portal_user_list.toString());
+		
+		// Trying to test if player has used the portal before here
+		if (!portal_user_list.contains(player.getName())) {
+			Bukkit.broadcastMessage(player.getName() + " just used a portal");
+			SQLite.add_portal_user(id, player.getName());
 		}
 
 		Portals.instance.getLogger().info("Teleporting "
@@ -156,7 +173,6 @@ public class PortalUtils {
 			// EntityType.AREA_EFFECT_CLOUD,
 			// EntityType.ARMOR_STAND,
 			//EntityType.ARROW,
-			EntityType.AXOLOTL,
 			EntityType.BAT,
 			EntityType.BLAZE,
 			EntityType.BOAT,
@@ -186,8 +202,6 @@ public class PortalUtils {
 			// EntityType.FISHING_HOOK,
 			EntityType.FOX,
 			EntityType.GHAST,
-			EntityType.GLOW_SQUID,
-			EntityType.GOAT,
 			// EntityType.GIANT,
 			EntityType.GUARDIAN,
 			EntityType.HOGLIN,
