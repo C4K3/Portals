@@ -412,7 +412,11 @@ public class SQLite {
 		return locations;
 	}
 	
-	//add players that use a portal
+	/**
+	 * Adds a player to the list of players that have used this portal.
+	 * Called when a player teleports using a portal and when a player creates a portal.
+	 * @param portal id and player uuid.
+	 */
 		public static void add_portal_user(Integer id, String uuid) {
 			try {
 				String query = "INSERT INTO portal_users "
@@ -429,7 +433,12 @@ public class SQLite {
 
 		}
 	
-	//Get list of all players that have used a portal
+		/**
+		 * Gets a list of all players who have used this portal.
+		 * Called whenever a player teleports using a portal.
+		 * @param portal ID.
+		 * @return An arraylist of players who have used the portal.
+		 */
 	public static ArrayList<String> get_portal_users(Integer id) {
 		
 		ArrayList<String> UserList = new ArrayList<String>();
@@ -454,7 +463,13 @@ public class SQLite {
 		
 	}
 	
-	
+	/**
+	 * Gets a constraint that limits which players alert admins when they use portal use.
+	 * Called when a player teleports using a portal.
+	 * @param uuid of the admin.
+	 * @return An integer. All players with less hours than this integer
+	 * will be logged
+	 */
 	public static int get_playtime_constraint(String uuid) {
 		int portallog_int = 0;
 		try {
@@ -474,7 +489,11 @@ public class SQLite {
 	}
 	return portallog_int;
 }
-	
+	/**
+	 * Sets whether or not admins want to be alerted of portal logs
+	 * Called when an admin uses /portallog
+	 * @param uuid of the admin, max hours integer.
+	 */
 	public static void set_portallog(String uuid, Integer playtime) {
 		try {
 			String query = "INSERT INTO portal_log "
