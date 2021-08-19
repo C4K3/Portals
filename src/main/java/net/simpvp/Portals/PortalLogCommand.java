@@ -25,20 +25,26 @@ public class PortalLogCommand implements CommandExecutor {
 		}
 		
 		if (args.length != 1) {
-			player.sendMessage(ChatColor.RED + "Correct usage: /portallog <true/false>");
-			return true;
+			player.sendMessage(ChatColor.RED + "Correct usage: /portallog <playtime>");
+			return false;
 		}
 		
-		Portals.instance.getLogger().info(args[0]);
+		int playtime = 0;
 		
-		if (args[0].toLowerCase().equals("true")) {
-			SQLite.set_portallog_boolean(1, player.getUniqueId().toString());
-			player.sendMessage(ChatColor.GREEN + "First time portal logging on!");
+		try {
+			playtime = Integer.parseInt(args[0]);  
+		} catch(Exception e) {
+			player.sendMessage(ChatColor.RED + "Invalid integer was given");
+			return false;
+		}
+		
+		if (playtime > 0) {
+			SQLite.set_portallog(player.getUniqueId().toString(), playtime);
+			player.sendMessage(ChatColor.GREEN + "Portal logging turned on for players with " + playtime + " hours or less");
 		} else {
-			SQLite.set_portallog_boolean(0, player.getUniqueId().toString());
-			player.sendMessage(ChatColor.RED + "First time portal logging off!");
+			SQLite.set_portallog(player.getUniqueId().toString(), playtime);
+			player.sendMessage(ChatColor.RED + "Portal logging turned off");
 		}
-		
 		
 		
 		return false;
