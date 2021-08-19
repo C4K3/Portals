@@ -71,9 +71,9 @@ public class SQLite {
 						+ "(id INTEGER,"
 						+ "uuid BLOB);"
 						
-						+ "CREATE TABLE portallog_boolean "
-						+ "(boolean INTEGER,"
-						+ "uuid BLOB);"
+						+ "CREATE TABLE portal_log "
+						+ "(uuid BLOB,"
+						+ "play_time INT);"
 
 						+ "PRAGMA user_version = 1;";
 					st = conn.createStatement();
@@ -454,21 +454,17 @@ public class SQLite {
 		
 	}
 	
-	public static Boolean get_portallog_boolean(String uuid) {
-		boolean portallog_boolean = false;
+	
+	public static int get_playtime_constraint(String uuid) {
+		int portallog_int = 0;
 		try {
-		String query = "SELECT * FROM portallog_boolean WHERE uuid = ?";
+		String query = "SELECT * FROM portal_log WHERE uuid = ?";
 		PreparedStatement st = conn.prepareStatement(query);
 		st.setString(1, uuid);
 
 		ResultSet rs = st.executeQuery();
 		while (rs.next()) {
-			int portallog_int = rs.getInt("boolean");
-			if (portallog_int == 1) {
-				portallog_boolean = true;
-			} else {
-				portallog_boolean = false;
-			}
+			portallog_int = rs.getInt("play_time");
 		}
 
 		rs.close();
@@ -476,17 +472,17 @@ public class SQLite {
 	} catch (Exception e) {
 		Portals.instance.getLogger().info(e.getMessage());
 	}
-	return portallog_boolean;
+	return portallog_int;
 }
 	
-	public static void set_portallog_boolean(Integer bool, String uuid) {
+	public static void set_portallog(String uuid, Integer playtime) {
 		try {
-			String query = "INSERT INTO portallog_boolean "
-					+ "(boolean, uuid) VALUES (?, ?)";
+			String query = "INSERT INTO portal_log "
+					+ "(uuid, play_time) VALUES (?, ?)";
 			PreparedStatement st = conn.prepareStatement(query);
-			st.setInt(1, bool);
-			st.setString(2, uuid);
-
+			st.setString(1, uuid);
+			st.setInt(2, playtime);
+			
 			st.executeUpdate();
 			st.close();
 		} catch (Exception e) {
