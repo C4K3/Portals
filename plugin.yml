@@ -2,3 +2,6 @@ name: Portals
 main: net.simpvp.Portals.Portals
 version: 9
 api-version: 1.14
+commands:
+  portallog:
+    description: Disable/enable logging of the first time a portal is used by a new player.
