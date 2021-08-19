@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -53,14 +54,16 @@ public class PortalUtils {
 		Integer id = SQLite.get_portal_by_location(portal.getBlock());
 		ArrayList<String> portal_user_list = SQLite.get_portal_users(id);
 		
-		//Temporary debugging
-		Bukkit.broadcastMessage(id.toString());
-		Bukkit.broadcastMessage(portal_user_list.toString());
 		
-		// Trying to test if player has used the portal before here
-		if (!portal_user_list.contains(player.getName())) {
-			Bukkit.broadcastMessage(player.getName() + " just used a portal");
-			SQLite.add_portal_user(id, player.getName());
+		
+		// Check if this is a players first time using this portal
+		if (!portal_user_list.contains(player.getUniqueId().toString())) {
+			SQLite.add_portal_user(id, player.getUniqueId().toString());
+			for (Player p : Portals.instance.getServer().getOnlinePlayers()) {
+				if (p.isOp())
+					p.sendMessage(ChatColor.RED + player.getName() + " just used a portal for the first time");
+			}
+			Portals.instance.getLogger().info(player.getName() + " just used a portal for the first time.");
 		}
 
 		Portals.instance.getLogger().info("Teleporting "
