@@ -60,7 +60,7 @@ public class PortalUtils {
 		if (!portal_user_list.contains(player.getUniqueId().toString())) {
 			SQLite.add_portal_user(id, player.getUniqueId().toString());
 			for (Player p : Portals.instance.getServer().getOnlinePlayers()) {
-				if (p.isOp())
+				if (p.isOp() && SQLite.get_portallog_boolean(p.getUniqueId().toString()))
 					p.sendMessage(ChatColor.RED + player.getName() + " just used a portal for the first time");
 			}
 			Portals.instance.getLogger().info(player.getName() + " just used a portal for the first time.");
