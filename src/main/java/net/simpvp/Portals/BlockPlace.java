@@ -133,6 +133,12 @@ public class BlockPlace implements Listener {
 					+ " " + location.getZ()
 					+ ".");
 
+			//Add portal creator to the portal user list
+			Integer id1 = SQLite.get_portal_by_location(location);
+			SQLite.add_portal_user(id1, player.getUniqueId().toString());
+			Integer id2 = SQLite.get_portal_by_location(unset);
+			SQLite.add_portal_user(id2, player.getUniqueId().toString());
+			
 			location.setType(Material.AIR);
 			location.getRelative(BlockFace.UP).setType(Material.AIR);	
 		}
