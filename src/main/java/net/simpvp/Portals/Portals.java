@@ -29,6 +29,8 @@ public class Portals extends JavaPlugin {
 			dir.mkdir();
 		}
 
+		getCommand("portallog").setExecutor(new PortalLogCommand());
+		
 		getServer().getPluginManager().registerEvents(new BlockBreak(), this);
 		getServer().getPluginManager().registerEvents(new BlockPlace(), this);
 		getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
