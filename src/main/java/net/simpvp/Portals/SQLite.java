@@ -11,7 +11,6 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 public class SQLite {
 
@@ -70,7 +69,7 @@ public class SQLite {
 						
 						+ "CREATE TABLE portal_users "
 						+ "(id INTEGER,"
-						+ "playername TEXT);"
+						+ "uuid BLOB);"
 
 						+ "PRAGMA user_version = 1;";
 					st = conn.createStatement();
@@ -410,13 +409,13 @@ public class SQLite {
 	}
 	
 	//add players that use a portal
-		public static void add_portal_user(Integer id, String playername) {
+		public static void add_portal_user(Integer id, String uuid) {
 			try {
 				String query = "INSERT INTO portal_users "
-						+ "(id, playername) VALUES (?, ?)";
+						+ "(id, uuid) VALUES (?, ?)";
 				PreparedStatement st = conn.prepareStatement(query);
 				st.setInt(1, id);
-				st.setString(2, playername);
+				st.setString(2, uuid);
 
 				st.executeUpdate();
 				st.close();
@@ -438,8 +437,8 @@ public class SQLite {
 
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
-				String user = rs.getString("uuid.toString");
-				UserList.add(new String(user));
+				String user_uuid = rs.getString("uuid");
+				UserList.add(new String(user_uuid));
 			}
 
 			rs.close();
