@@ -70,7 +70,7 @@ public class PortalUtils {
 					}
 				}
 			}
-			Portals.instance.getLogger().info("[Portals] "+ player.getName() + " just used a portal for the first time.");
+			Portals.instance.getLogger().info(player.getName() + " just used a portal for the first time.");
 		}
 
 		Portals.instance.getLogger().info("Teleporting "
