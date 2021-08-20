@@ -66,14 +66,6 @@ public class SQLite {
 						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
 						+ "uuid BLOB,"
 						+ "amount INT);"
-						
-						+ "CREATE TABLE portal_users "
-						+ "(id INTEGER,"
-						+ "uuid BLOB);"
-						
-						+ "CREATE TABLE portal_log "
-						+ "(uuid BLOB,"
-						+ "play_time INT);"
 
 						+ "PRAGMA user_version = 1;";
 					st = conn.createStatement();
@@ -89,7 +81,6 @@ public class SQLite {
 					st.executeUpdate(query);
 					st.close();
 				}
-
 				case 2: {
 					Portals.instance.getLogger().info("Migrating to version 3 ...");
 					String query = ""
@@ -102,12 +93,27 @@ public class SQLite {
 					st.executeUpdate(query);
 					st.close();
 				}
+				case 3: {
+					Portals.instance.getLogger().info("Migrating to version 4 ...");
+					String query = ""
+							+ "CREATE TABLE portal_users "
+							+ "(id INTEGER,"
+							+ "uuid BLOB);"
+							+ "CREATE INDEX idx_portal_users_id ON portal_users (id);"
+							
+							+ "CREATE TABLE portal_log "
+							+ "(uuid BLOB,"
+							+ "play_time INT);"
+							+ "CREATE INDEX idx_portal_log_uuid ON portal_log (uuid);";
+					st = conn.createStatement();
+					st.executeUpdate(query);
+					st.close();
+				}
 			}
 		} catch ( Exception e ) {
 			Portals.instance.getLogger().info(e.getMessage());
 			return;
 		}
-
 	}
 
 	/**
@@ -424,7 +430,6 @@ public class SQLite {
 				PreparedStatement st = conn.prepareStatement(query);
 				st.setInt(1, id);
 				st.setString(2, uuid);
-
 				st.executeUpdate();
 				st.close();
 			} catch (Exception e) {
@@ -447,13 +452,11 @@ public class SQLite {
 			String query = "SELECT * FROM portal_users WHERE id = ?";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setInt(1, id);
-
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
 				String user_uuid = rs.getString("uuid");
 				UserList.add(new String(user_uuid));
 			}
-
 			rs.close();
 			st.close();
 		} catch (Exception e) {
@@ -501,13 +504,11 @@ public class SQLite {
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setString(1, uuid);
 			st.setInt(2, playtime);
-			
 			st.executeUpdate();
 			st.close();
 		} catch (Exception e) {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
-	}
-	
+	}	
 }
 
