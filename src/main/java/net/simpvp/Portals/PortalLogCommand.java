@@ -12,7 +12,6 @@ public class PortalLogCommand implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
 		
-		
 		if (!(sender instanceof Player)) {
 			return false;
 		}
@@ -41,13 +40,12 @@ public class PortalLogCommand implements CommandExecutor {
 		if (playtime > 0) {
 			SQLite.set_portallog(player.getUniqueId().toString(), playtime);
 			player.sendMessage(ChatColor.GREEN + "Portal logging turned on for players with " + playtime + " hours or less");
+			Portals.instance.getLogger().info(player.getName() + " turned portal logging on for players with " + playtime + " hours or less");
 		} else {
 			SQLite.set_portallog(player.getUniqueId().toString(), playtime);
 			player.sendMessage(ChatColor.RED + "Portal logging turned off");
+			Portals.instance.getLogger().info(player.getName() + " turned portal logging off");
 		}
-		
-		
 		return false;
-
 	}
 }
