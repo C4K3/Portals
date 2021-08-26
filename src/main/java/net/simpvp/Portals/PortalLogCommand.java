@@ -46,6 +46,6 @@ public class PortalLogCommand implements CommandExecutor {
 			player.sendMessage(ChatColor.RED + "Portal logging turned off");
 			Portals.instance.getLogger().info(player.getName() + " turned portal logging off");
 		}
-		return false;
+		return true;
 	}
 }
