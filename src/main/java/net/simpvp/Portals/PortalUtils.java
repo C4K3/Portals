@@ -1,14 +1,16 @@
 package net.simpvp.Portals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sittable;
 
@@ -28,6 +30,8 @@ public class PortalUtils {
 
 		Location location = player.getLocation();
 		Location destination = SQLite.get_other_portal(portal);
+		
+
 
 		/* If this portal is not a Portals portal */
 		if (destination == null) {
@@ -44,6 +48,29 @@ public class PortalUtils {
 			Portals.instance.getLogger().info(player.getName() + " destination portal frame is missing.");
 
 			return;
+		}
+		
+		Integer id = SQLite.get_portal_by_location(portal.getBlock());
+		ArrayList<String> portal_user_list = SQLite.get_portal_users(id);
+		
+		
+		
+		// Check if this is a players first time using this portal
+		if (!portal_user_list.contains(player.getUniqueId().toString())) {
+			SQLite.add_portal_user(id, player.getUniqueId().toString());
+			for (Player p : Portals.instance.getServer().getOnlinePlayers()) {
+				if (p.isOp()) {
+					
+					int played_ticks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
+					int played_minutes = played_ticks / (20 * 60);
+					double played_hours = played_minutes / 60.0;
+					
+					if (played_hours < SQLite.get_playtime_constraint(p.getUniqueId().toString())) {
+					p.sendMessage(ChatColor.RED + player.getName() + " just used a portal for the first time");
+					}
+				}
+			}
+			Portals.instance.getLogger().info(player.getName() + " just used a portal for the first time.");
 		}
 
 		Portals.instance.getLogger().info("Teleporting "

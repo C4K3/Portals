@@ -81,7 +81,6 @@ public class SQLite {
 					st.executeUpdate(query);
 					st.close();
 				}
-
 				case 2: {
 					Portals.instance.getLogger().info("Migrating to version 3 ...");
 					String query = ""
@@ -94,12 +93,27 @@ public class SQLite {
 					st.executeUpdate(query);
 					st.close();
 				}
+				case 3: {
+					Portals.instance.getLogger().info("Migrating to version 4 ...");
+					String query = ""
+							+ "CREATE TABLE portal_users "
+							+ "(id INTEGER,"
+							+ "uuid BLOB);"
+							+ "CREATE INDEX idx_portal_users_id ON portal_users (id);"
+							
+							+ "CREATE TABLE portal_log "
+							+ "(uuid BLOB,"
+							+ "play_time INT);"
+							+ "CREATE INDEX idx_portal_log_uuid ON portal_log (uuid);";
+					st = conn.createStatement();
+					st.executeUpdate(query);
+					st.close();
+				}
 			}
 		} catch ( Exception e ) {
 			Portals.instance.getLogger().info(e.getMessage());
 			return;
 		}
-
 	}
 
 	/**
@@ -360,7 +374,7 @@ public class SQLite {
 	/**
 	 * For checking whether there is a portal at the given location.
 	 * 
-	 * Called whenever an obsidian block is destroyed, this checks whther
+	 * Called whenever an obsidian block is destroyed, this checks whether
 	 * that block was part of a portal here.
 	 * @param block The block that was broken.
 	 * @return An arraylist of PortalLocations for portals within range of
@@ -403,6 +417,98 @@ public class SQLite {
 
 		return locations;
 	}
+	
+	/**
+	 * Adds a player to the list of players that have used this portal.
+	 * Called when a player teleports using a portal and when a player creates a portal.
+	 * @param portal id and player uuid.
+	 */
+		public static void add_portal_user(Integer id, String uuid) {
+			try {
+				String query = "INSERT INTO portal_users "
+						+ "(id, uuid) VALUES (?, ?)";
+				PreparedStatement st = conn.prepareStatement(query);
+				st.setInt(1, id);
+				st.setString(2, uuid);
+				st.executeUpdate();
+				st.close();
+			} catch (Exception e) {
+				Portals.instance.getLogger().info(e.getMessage());
+			}
 
+		}
+	
+		/**
+		 * Gets a list of all players who have used this portal.
+		 * Called whenever a player teleports using a portal.
+		 * @param portal ID.
+		 * @return An arraylist of players who have used the portal.
+		 */
+	public static ArrayList<String> get_portal_users(Integer id) {
+		
+		ArrayList<String> UserList = new ArrayList<String>();
+		
+		try {
+			String query = "SELECT * FROM portal_users WHERE id = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1, id);
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				String user_uuid = rs.getString("uuid");
+				UserList.add(new String(user_uuid));
+			}
+			rs.close();
+			st.close();
+		} catch (Exception e) {
+			Portals.instance.getLogger().info(e.getMessage());
+		}
+		return UserList;
+		
+	}
+	
+	/**
+	 * Gets a constraint that limits which players alert admins when they use portal use.
+	 * Called when a player teleports using a portal.
+	 * @param uuid of the admin.
+	 * @return An integer. All players with less hours than this integer
+	 * will be logged
+	 */
+	public static int get_playtime_constraint(String uuid) {
+		int portallog_int = 0;
+		try {
+		String query = "SELECT * FROM portal_log WHERE uuid = ?";
+		PreparedStatement st = conn.prepareStatement(query);
+		st.setString(1, uuid);
+
+		ResultSet rs = st.executeQuery();
+		while (rs.next()) {
+			portallog_int = rs.getInt("play_time");
+		}
+
+		rs.close();
+		st.close();
+	} catch (Exception e) {
+		Portals.instance.getLogger().info(e.getMessage());
+	}
+	return portallog_int;
+}
+	/**
+	 * Sets whether or not admins want to be alerted of portal logs
+	 * Called when an admin uses /portallog
+	 * @param uuid of the admin, max hours integer.
+	 */
+	public static void set_portallog(String uuid, Integer playtime) {
+		try {
+			String query = "INSERT INTO portal_log "
+					+ "(uuid, play_time) VALUES (?, ?)";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, uuid);
+			st.setInt(2, playtime);
+			st.executeUpdate();
+			st.close();
+		} catch (Exception e) {
+			Portals.instance.getLogger().info(e.getMessage());
+		}
+	}	
 }
 
