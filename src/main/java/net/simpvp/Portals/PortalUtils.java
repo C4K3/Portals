@@ -29,68 +29,65 @@ public class PortalUtils {
 		}
 
 		Location location = player.getLocation();
-		Location destination = SQLite.get_other_portal(portal);
-		
-
+		SQLite.PortalLookup lookup = SQLite.get_other_portal(portal);
 
 		/* If this portal is not a Portals portal */
-		if (destination == null) {
+		if (lookup == null) {
 			Portals.instance.getLogger().info(player.getName() + " destination was null.");
 			return;
 		}
 
 		/* Stop Yaw and Pitch from changing if portal location is not directly from player */
-		destination.setYaw(location.getYaw());
-		destination.setPitch(location.getPitch());
+		lookup.destination.setYaw(location.getYaw());
+		lookup.destination.setPitch(location.getPitch());
 
 		/* Make sure a valid portal is at destination */
-		if (!PortalCheck.is_valid_portal(destination.getBlock())) {
+		if (!PortalCheck.is_valid_portal(lookup.destination.getBlock())) {
 			Portals.instance.getLogger().info(player.getName() + " destination portal frame is missing.");
 
 			return;
 		}
-		
-		Integer id = SQLite.get_portal_by_location(portal.getBlock());
-		ArrayList<String> portal_user_list = SQLite.get_portal_users(id);
-		
-		
-		
+
+		ArrayList<UUID> portal_user_list = SQLite.get_portal_users(lookup.a);
+
 		// Check if this is a players first time using this portal
-		if (!portal_user_list.contains(player.getUniqueId().toString())) {
-			SQLite.add_portal_user(id, player.getUniqueId().toString());
+		if (!portal_user_list.contains(player.getUniqueId())) {
+			SQLite.add_portal_user(lookup.a, lookup.b, player.getUniqueId());
+
+			int played_ticks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
+			int played_minutes = played_ticks / (20 * 60);
+			double played_hours = played_minutes / 60.0;
+
+			Portals.instance.getLogger().info(String.format("%s just used a portal for the first time at '%d %d %d %s'", player.getName(), lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ(), lookup.destination.getWorld().getName()));
+
 			for (Player p : Portals.instance.getServer().getOnlinePlayers()) {
-				if (p.isOp()) {
-					
-					int played_ticks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
-					int played_minutes = played_ticks / (20 * 60);
-					double played_hours = played_minutes / 60.0;
-					
-					if (played_hours < SQLite.get_playtime_constraint(p.getUniqueId().toString())) {
+				if (!p.isOp()) {
+					continue;
+				}
+
+				if (played_hours < SQLite.get_playtime_constraint(p.getUniqueId().toString())) {
 					p.sendMessage(ChatColor.RED + player.getName() + " just used a portal for the first time");
-					}
 				}
 			}
-			Portals.instance.getLogger().info(player.getName() + " just used a portal for the first time.");
 		}
 
-		Portals.instance.getLogger().info("Teleporting "
-				+ player.getName() + " to " + destination.getWorld().getName()
-				+ " " + destination.getBlockX() + " " + destination.getBlockY() 
-				+ " " + destination.getBlockZ());
+		Portals.instance.getLogger().info(String.format("Teleporting %s to %s %d %d %d", player.getName(), lookup.destination.getWorld().getName(), lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ()));
 
 		/* workaround for laggy teleports, see
 		 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */
-		Location fLoc = new Location(destination.getWorld(),
-				destination.getBlockX(), destination.getBlockY() - 1,
-				destination.getBlockZ());
+		Location fLoc = new Location(lookup.destination.getWorld(),
+				lookup.destination.getBlockX(),
+				lookup.destination.getBlockY() - 1,
+				lookup.destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getBlockData());
-		fLoc = new Location(destination.getWorld(),
-				destination.getBlockX(), destination.getBlockY(),
-				destination.getBlockZ());
+		fLoc = new Location(lookup.destination.getWorld(),
+				lookup.destination.getBlockX(),
+				lookup.destination.getBlockY(),
+				lookup.destination.getBlockZ());
 		player.sendBlockChange(fLoc, fLoc.getBlock().getBlockData());
 
-		player.teleport(destination);	
-		teleportNearby(portal, destination, player);
+		player.teleport(lookup.destination);
+		teleportNearby(portal, lookup.destination, player);
 
 		/* Fix players from being stuck sneaking after a teleport*/
 		unsneak(player);
@@ -129,7 +126,7 @@ public class PortalUtils {
 	 * For stopping a player from being locked sneaking after switching worlds with a Portal
 	 * @param player player to unsneak
 	 */
-	public static void unsneak(final Player player) {	
+	public static void unsneak(final Player player) {
 		Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 			public void run() {
 				player.setSneaking(false);
@@ -144,7 +141,7 @@ public class PortalUtils {
 	 * @param player player who used the portal and may have to be teleported again to stop visual bug
 	 */
 	public static void teleportNearby(Location from, final Location destination, Player player) {
-		/* First teleport all entities at the same time as the player 
+		/* First teleport all entities at the same time as the player
 		 * The delay in previous versions seems to cause the duplication bug */
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 		boolean somethingTeleported = false;

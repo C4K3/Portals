@@ -97,14 +97,19 @@ public class SQLite {
 					Portals.instance.getLogger().info("Migrating to version 4 ...");
 					String query = ""
 							+ "CREATE TABLE portal_users "
-							+ "(id INTEGER,"
-							+ "uuid BLOB);"
-							+ "CREATE INDEX idx_portal_users_id ON portal_users (id);"
+							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+							+ "portal INTEGER,"
+							+ "uuid BLOB,"
+							+ "time INTEGER);"
+							+ "CREATE INDEX idx_portal_users_portal ON portal_users (portal);"
 							
 							+ "CREATE TABLE portal_log "
-							+ "(uuid BLOB,"
+							+ "(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+							+ "uuid BLOB UNIQUE,"
 							+ "play_time INT);"
-							+ "CREATE INDEX idx_portal_log_uuid ON portal_log (uuid);";
+							+ "CREATE INDEX idx_portal_log_uuid ON portal_log (uuid);"
+
+							+ "PRAGMA user_version = 4;";
 					st = conn.createStatement();
 					st.executeUpdate(query);
 					st.close();
@@ -131,32 +136,55 @@ public class SQLite {
 	 * Inserts a portal pair into the portal_pairs table.
 	 * @param portal1 Location of the first portal.
 	 * @param portal2 Location of the second portal.
+	 * @param player The UUID of the player who set the portal.
 	 */
-	public static void insert_portal_pair(Block portal1, Block portal2) {
+	public static void insert_portal_pair(Block portal1, Block portal2, UUID player) {
 		try {
-			Statement st = conn.createStatement();
+			// https://github.com/xerial/sqlite-jdbc/issues/613
+			// means we can't insert both rows at the same time.
+			// But when we update to 3.35 we should be able to use
+			// RETURNING. In the future if
+			// https://sqlite.org/forum/forumpost/bd948b3b89
+			// is implemented we could do that too.
+			String query = "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES (?, ?, ?, ?, '-1')";
+			PreparedStatement st = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			st.setInt(1, portal1.getX());
+			st.setInt(2, portal1.getY());
+			st.setInt(3, portal1.getZ());
+			st.setString(4, portal1.getWorld().getName());
+			st.executeUpdate();
+			ResultSet rs = st.getGeneratedKeys();
+			rs.next();
+			// Primary key of first portal
+			int a = rs.getInt(1);
+			rs.close();
 
-			int x1 = portal1.getX();
-			int y1 = portal1.getY();
-			int z1 = portal1.getZ();
-			String world1 = portal1.getWorld().getName();
-			int x2 = portal2.getX();
-			int y2 = portal2.getY();
-			int z2 = portal2.getZ();
-			String world2 = portal2.getWorld().getName();
-
-			String query = "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES "
-				+ "('" + x1 + "', '" + y1 + "', '" + z1 + "', '" + world1 + "', '-1');"
-				+ "UPDATE portal_pairs SET pair = ((SELECT last_insert_rowid()) + 1) "
-				+ "WHERE id = (SELECT last_insert_rowid());"
-				+ "INSERT INTO portal_pairs (x, y, z, world, pair) VALUES "
-				+ "('" + x2 + "', '" + y2 + "', '" + z2 + "', '" + world2 + "', (SELECT last_insert_rowid()));";
-
-			st.executeUpdate(query);
+			st.setInt(1, portal2.getX());
+			st.setInt(2, portal2.getY());
+			st.setInt(3, portal2.getZ());
+			st.setString(4, portal2.getWorld().getName());
+			st.executeUpdate();
+			rs = st.getGeneratedKeys();
+			rs.next();
+			// Primary key of second portal
+			int b = rs.getInt(1);
+			rs.close();
 			st.close();
 
+			// Update the two rows to reference each other's primary key
+			query = "WITH const(id, pair) AS (VALUES (?, ?), (?, ?)) UPDATE portal_pairs SET pair = (SELECT pair FROM const WHERE portal_pairs.id = const.id) WHERE id IN (SELECT id FROM const)";
+			st = conn.prepareStatement(query);
+			st.setInt(1, a);
+			st.setInt(2, b);
+			st.setInt(3, b);
+			st.setInt(4, a);
+			st.executeUpdate();
+			st.close();
+
+			// The portal's creator is considered to know where the portal is.
+			add_portal_user(a, b, player);
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 	}
 
@@ -172,20 +200,42 @@ public class SQLite {
 				+ portal.block.getZ());
 
 		try {
-			String query = "DELETE FROM portal_pairs WHERE id IN "
-				+ "(SELECT DISTINCT pair FROM portal_pairs WHERE id = ?);";
-			PreparedStatement st = conn.prepareStatement(query);
-			st.setInt(1, portal.id);
-			st.executeUpdate();
+			PreparedStatement st;
+			String query;
 
-			query = "DELETE FROM portal_pairs WHERE id = ?";
+			query = "DELETE FROM portal_users WHERE portal IN (?, (SELECT DISTINCT pair FROM portal_pairs WHERE id = ?))";
 			st = conn.prepareStatement(query);
 			st.setInt(1, portal.id);
+			st.setInt(2, portal.id);
+			st.executeUpdate();
+			st.close();
+
+
+			query = "DELETE FROM portal_pairs WHERE id IN (?, (SELECT DISTINCT pair FROM portal_pairs WHERE id = ?))";
+			st = conn.prepareStatement(query);
+			st.setInt(1, portal.id);
+			st.setInt(2, portal.id);
 			st.executeUpdate();
 			st.close();
 
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
+		}
+	}
+
+	public static class PortalLookup {
+		// Primary key of first portal
+		int a;
+		// Primary key of second portal
+		int b;
+
+		// Location of second portal
+		Location destination;
+
+		public PortalLookup(int a, int b, Location destination) {
+			this.a = a;
+			this.b = b;
+			this.destination = destination;
 		}
 	}
 
@@ -195,8 +245,8 @@ public class SQLite {
 	 * @param location Location of the player
 	 * @return Location if it is a valid portal-pair, else null
 	 */
-	public static Location get_other_portal(Location from) {
-		Location destination = null;
+	public static PortalLookup get_other_portal(Location from) {
+		PortalLookup ret = null;
 
 		int x = from.getBlockX();
 		int y = from.getBlockY();
@@ -215,10 +265,13 @@ public class SQLite {
 
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
-				destination = new Location(Portals.instance.getServer().getWorld(
+				Location destination = new Location(Portals.instance.getServer().getWorld(
 							rs.getString("world")), (double) rs.getInt("x") + 0.5,
 						(double) rs.getInt("y"), (double) rs.getInt("z") + 0.5,
 						from.getYaw(), from.getPitch());
+				int a = rs.getInt("id");
+				int b = rs.getInt("pair");
+				ret = new PortalLookup(a, b, destination);
 			}
 
 			rs.close();			
@@ -226,7 +279,7 @@ public class SQLite {
 		} catch (Exception e) {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
-		return destination;
+		return ret;
 	}
 
 	/**
@@ -421,49 +474,63 @@ public class SQLite {
 	/**
 	 * Adds a player to the list of players that have used this portal.
 	 * Called when a player teleports using a portal and when a player creates a portal.
-	 * @param portal id and player uuid.
+	 * @param a The primary key of one of the portal pairs
+	 * @param b The primary key of the other of the portal pairs
+	 * @param uuid The player who used the portal's uuid
 	 */
-		public static void add_portal_user(Integer id, String uuid) {
-			try {
-				String query = "INSERT INTO portal_users "
-						+ "(id, uuid) VALUES (?, ?)";
-				PreparedStatement st = conn.prepareStatement(query);
-				st.setInt(1, id);
-				st.setString(2, uuid);
-				st.executeUpdate();
-				st.close();
-			} catch (Exception e) {
-				Portals.instance.getLogger().info(e.getMessage());
-			}
-
-		}
-	
-		/**
-		 * Gets a list of all players who have used this portal.
-		 * Called whenever a player teleports using a portal.
-		 * @param portal ID.
-		 * @return An arraylist of players who have used the portal.
-		 */
-	public static ArrayList<String> get_portal_users(Integer id) {
-		
-		ArrayList<String> UserList = new ArrayList<String>();
-		
+	public static void add_portal_user(int a, int b, UUID uuid) {
 		try {
-			String query = "SELECT * FROM portal_users WHERE id = ?";
+			String query = "INSERT INTO portal_users (portal, uuid, time) VALUES (?, ?, ?)";
 			PreparedStatement st = conn.prepareStatement(query);
-			st.setInt(1, id);
-			ResultSet rs = st.executeQuery();
-			while (rs.next()) {
-				String user_uuid = rs.getString("uuid");
-				UserList.add(new String(user_uuid));
-			}
-			rs.close();
+			st.setString(2, uuid.toString());
+			st.setLong(3, System.currentTimeMillis() / 1000L);
+
+			st.setInt(1, a);
+			st.executeUpdate();
+
+			st.setInt(1, b);
+			st.executeUpdate();
+
 			st.close();
 		} catch (Exception e) {
 			Portals.instance.getLogger().info(e.getMessage());
 		}
-		return UserList;
+	}
+	
+	/**
+	 * Gets a list of all players who have used this portal.
+	 * Called whenever a player teleports using a portal.
+	 * @param portal ID.
+	 * @return An arraylist of players who have used the portal.
+	 */
+	public static ArrayList<UUID> get_portal_users(int id) {
 		
+		ArrayList<UUID> UserList = new ArrayList<>();
+		
+		try {
+			String query = "SELECT uuid FROM portal_users WHERE portal = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setInt(1, id);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				String user_uuid = rs.getString("uuid");
+				UUID uuid;
+				try {
+					uuid = UUID.fromString(user_uuid);
+				} catch (Exception e) {
+					Portals.instance.getLogger().warning("Invalid uuid from portal_users: " + user_uuid);
+					continue;
+				}
+				UserList.add(uuid);
+			}
+
+			rs.close();
+			st.close();
+		} catch (Exception e) {
+			Portals.instance.getLogger().severe(e.getMessage());
+		}
+		return UserList;
 	}
 	
 	/**
@@ -476,22 +543,22 @@ public class SQLite {
 	public static int get_playtime_constraint(String uuid) {
 		int portallog_int = 0;
 		try {
-		String query = "SELECT * FROM portal_log WHERE uuid = ?";
-		PreparedStatement st = conn.prepareStatement(query);
-		st.setString(1, uuid);
+			String query = "SELECT * FROM portal_log WHERE uuid = ?";
+			PreparedStatement st = conn.prepareStatement(query);
+			st.setString(1, uuid);
 
-		ResultSet rs = st.executeQuery();
-		while (rs.next()) {
-			portallog_int = rs.getInt("play_time");
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				portallog_int = rs.getInt("play_time");
+			}
+
+			rs.close();
+			st.close();
+		} catch (Exception e) {
+			Portals.instance.getLogger().info(e.getMessage());
 		}
-
-		rs.close();
-		st.close();
-	} catch (Exception e) {
-		Portals.instance.getLogger().info(e.getMessage());
+		return portallog_int;
 	}
-	return portallog_int;
-}
 	/**
 	 * Sets whether or not admins want to be alerted of portal logs
 	 * Called when an admin uses /portallog
@@ -499,8 +566,7 @@ public class SQLite {
 	 */
 	public static void set_portallog(String uuid, Integer playtime) {
 		try {
-			String query = "INSERT INTO portal_log "
-					+ "(uuid, play_time) VALUES (?, ?)";
+			String query = "INSERT OR REPLACE INTO portal_log (uuid, play_time) VALUES (?, ?)";
 			PreparedStatement st = conn.prepareStatement(query);
 			st.setString(1, uuid);
 			st.setInt(2, playtime);
