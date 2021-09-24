@@ -30,12 +30,8 @@ public class PlayerInteract implements Listener {
 			/* Short delay to stop players from teleporting to the wrong loation */
 			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 				public void run() {
-					Portals.instance.getLogger().info(player.getName() + " tried to use a portal by pressure plate at"
-							+ " " + block.getWorld().getName()
-							+ " " + block.getX()
-							+ " " + block.getY()
-							+ " " + block.getZ()
-							+ ".");
+					Portals.instance.getLogger().info(String.format("%s tried to use a portal by pressure plate at '%d %d %d %s'.",
+								player.getName(), block.getX(), block.getY(), block.getZ(), block.getWorld().getName()));
 					PortalUtils.teleport(player, block.getLocation());
 				}
 			}, 1L);

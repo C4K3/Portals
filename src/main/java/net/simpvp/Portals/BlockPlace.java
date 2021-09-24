@@ -98,12 +98,8 @@ public class BlockPlace implements Listener {
 		Block unset = SQLite.get_unset_portal(uuid);
 		if (unset == null) {
 			SQLite.insert_unset_portal(uuid, location);
-			Portals.instance.getLogger().info(player.getName() + " successfully created an unset portal at"
-					+ " " + location.getWorld().getName()
-					+ " " + location.getX()
-					+ " " + location.getY()
-					+ " " + location.getZ()
-					+ ".");
+			Portals.instance.getLogger().info(String.format("%s successfully created an unset portal at '%d %d %d %s'.",
+						player.getName(), location.getX(), location.getY(), location.getZ(), location.getWorld().getName()));
 			location.setType(Material.AIR);
 			location.getRelative(BlockFace.UP).setType(Material.AIR);
 
@@ -111,27 +107,23 @@ public class BlockPlace implements Listener {
 			SQLite.delete_unset_portal(uuid);
 
 			if (PortalCheck.is_valid_portal(unset) == false) {
-				Portals.instance.getLogger().info(player.getName() + "'s other portal was broken at"
-						+ " " + location.getWorld().getName()
-						+ " " + location.getX()
-						+ " " + location.getY()
-						+ " " + location.getZ()
-						+ ".");
+				Portals.instance.getLogger().info(String.format("%s's other portal was broken at '%d %d %d %s'.",
+							player.getName(), location.getX(), location.getY(), location.getZ(), location.getWorld().getName()));
 				return;
 			}
 
 			SQLite.insert_portal_pair(location, unset, player.getUniqueId());
-			Portals.instance.getLogger().info(player.getName() + " successfully created a portal set to"
-					+ " " + unset.getWorld().getName()
-					+ " " + unset.getX()
-					+ " " + unset.getY()
-					+ " " + unset.getZ()
-					+ " by placing a portal at"
-					+ " " + location.getWorld().getName()
-					+ " " + location.getX()
-					+ " " + location.getY()
-					+ " " + location.getZ()
-					+ ".");
+			Portals.instance.getLogger().info(String.format("%s successfully created a portal set to '%d %d %d %s' by placing a portal at '%d %d %d %s'.",
+						player.getName(),
+						unset.getX(),
+						unset.getY(),
+						unset.getZ(),
+						unset.getWorld().getName(),
+						location.getX(),
+						location.getY(),
+						location.getZ(),
+						location.getWorld().getName()
+						));
 
 			location.setType(Material.AIR);
 			location.getRelative(BlockFace.UP).setType(Material.AIR);

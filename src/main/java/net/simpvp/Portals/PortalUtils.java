@@ -71,7 +71,13 @@ public class PortalUtils {
 			}
 		}
 
-		Portals.instance.getLogger().info(String.format("Teleporting %s to %s %d %d %d", player.getName(), lookup.destination.getWorld().getName(), lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ()));
+		Portals.instance.getLogger().info(String.format("Teleporting %s to '%d %d %d %s'",
+					player.getName(),
+					lookup.destination.getBlockX(),
+					lookup.destination.getBlockY(),
+					lookup.destination.getBlockZ(),
+					lookup.destination.getWorld().getName()
+					));
 
 		/* workaround for laggy teleports, see
 		 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */

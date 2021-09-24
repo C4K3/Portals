@@ -115,8 +115,8 @@ public class SQLite {
 					st.close();
 				}
 			}
-		} catch ( Exception e ) {
-			Portals.instance.getLogger().info(e.getMessage());
+		} catch (Exception e) {
+			Portals.instance.getLogger().severe(e.getMessage());
 			return;
 		}
 	}
@@ -128,7 +128,7 @@ public class SQLite {
 		try {
 			conn.close();
 		} catch(Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 	}
 
@@ -193,11 +193,12 @@ public class SQLite {
 	 * @param id id (PK) of one of the portals.
 	 */
 	public static void delete_portal_pair(PortalLocation portal) {
-		Portals.instance.getLogger().info("Disabling this portal at "
-				+ portal.block.getWorld().getName() + " "
-				+ portal.block.getX() + " "
-				+ portal.block.getY() + " "
-				+ portal.block.getZ());
+		Portals.instance.getLogger().info(String.format("Disabling this portal at '%d %d %d %s'",
+					portal.block.getX(),
+					portal.block.getY(),
+					portal.block.getZ(),
+					portal.block.getWorld().getName()
+					));
 
 		try {
 			PreparedStatement st;
@@ -277,7 +278,7 @@ public class SQLite {
 			rs.close();			
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 		return ret;
 	}
@@ -311,7 +312,7 @@ public class SQLite {
 			rs.close();
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 		return id;
 	}
@@ -338,7 +339,7 @@ public class SQLite {
 			rs.close();
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 		return portal;
 	}
@@ -372,7 +373,7 @@ public class SQLite {
 			rs.close();
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 		return id;
 	}
@@ -402,7 +403,7 @@ public class SQLite {
 			st.close();
 
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 	}
 
@@ -420,7 +421,7 @@ public class SQLite {
 			st.close();
 
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 	}
 
@@ -465,7 +466,7 @@ public class SQLite {
 			rs.close();
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 
 		return locations;
@@ -493,7 +494,7 @@ public class SQLite {
 
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 	}
 	
@@ -555,7 +556,7 @@ public class SQLite {
 			rs.close();
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 		return portallog_int;
 	}
@@ -573,7 +574,7 @@ public class SQLite {
 			st.executeUpdate();
 			st.close();
 		} catch (Exception e) {
-			Portals.instance.getLogger().info(e.getMessage());
+			Portals.instance.getLogger().severe(e.getMessage());
 		}
 	}	
 }
