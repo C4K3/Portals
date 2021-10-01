@@ -6,13 +6,18 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sittable;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class PortalUtils {
 
@@ -60,13 +65,20 @@ public class PortalUtils {
 
 			Portals.instance.getLogger().info(String.format("%s just used a portal for the first time at '%d %d %d %s'", player.getName(), lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ(), lookup.destination.getWorld().getName()));
 
+			TextComponent msg = new TextComponent(player.getName() + " just used a portal for the first time");
+			msg.setColor(ChatColor.RED);
+			ClickEvent click = new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/tpc %d %d %d %s", lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ(), lookup.destination.getWorld().getName()));
+			msg.setClickEvent(click);
+			HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Teleport to portal coordinates").create());
+			msg.setHoverEvent(hover);
+
 			for (Player p : Portals.instance.getServer().getOnlinePlayers()) {
 				if (!p.isOp()) {
 					continue;
 				}
 
 				if (played_hours < SQLite.get_playtime_constraint(p.getUniqueId().toString())) {
-					p.sendMessage(ChatColor.RED + player.getName() + " just used a portal for the first time");
+					p.spigot().sendMessage(msg);
 				}
 			}
 		}
