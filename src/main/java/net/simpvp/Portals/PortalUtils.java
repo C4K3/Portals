@@ -63,11 +63,16 @@ public class PortalUtils {
 			int played_minutes = played_ticks / (20 * 60);
 			double played_hours = played_minutes / 60.0;
 
-			Portals.instance.getLogger().info(String.format("%s just used a portal for the first time at '%d %d %d %s'", player.getName(), lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ(), lookup.destination.getWorld().getName()));
+			int x = player.getLocation().getBlockX();
+			int y = player.getLocation().getBlockY();
+			int z = player.getLocation().getBlockZ();
+			String world = player.getLocation().getWorld().getName();
+
+			Portals.instance.getLogger().info(String.format("%s just used a portal for the first time at '%d %d %d %s'", player.getName(), x, y, z, world));
 
 			TextComponent msg = new TextComponent(player.getName() + " just used a portal for the first time");
 			msg.setColor(ChatColor.RED);
-			ClickEvent click = new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/tpc %d %d %d %s", lookup.destination.getBlockX(), lookup.destination.getBlockY(), lookup.destination.getBlockZ(), lookup.destination.getWorld().getName()));
+			ClickEvent click = new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/tpc %d %d %d %s", x, y, z, world));
 			msg.setClickEvent(click);
 			HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Teleport to portal coordinates").create());
 			msg.setHoverEvent(hover);
