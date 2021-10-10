@@ -56,7 +56,7 @@ public class PortalUtils {
 		ArrayList<UUID> portal_user_list = SQLite.get_portal_users(lookup.a);
 
 		// Check if this is a players first time using this portal
-		if (!portal_user_list.contains(player.getUniqueId())) {
+		if (!portal_user_list.contains(player.getUniqueId()) && player.getGameMode() == (GameMode.SURVIVAL)) {
 			SQLite.add_portal_user(lookup.a, lookup.b, player.getUniqueId());
 
 			int played_ticks = player.getStatistic(Statistic.PLAY_ONE_MINUTE);
