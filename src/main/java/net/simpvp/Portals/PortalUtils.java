@@ -89,8 +89,12 @@ public class PortalUtils {
 			}
 		}
 
-		Portals.instance.getLogger().info(String.format("Teleporting %s to '%d %d %d %s'",
+		Portals.instance.getLogger().info(String.format("Portal teleporting %s from '%d %d %d %s' to '%d %d %d %s'",
 					player.getName(),
+					portal.getBlockX(),
+					portal.getBlockY(),
+					portal.getBlockZ(),
+					portal.getWorld().getName(),
 					lookup.destination.getBlockX(),
 					lookup.destination.getBlockY(),
 					lookup.destination.getBlockZ(),
