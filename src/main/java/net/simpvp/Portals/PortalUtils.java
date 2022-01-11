@@ -39,7 +39,7 @@ public class PortalUtils {
 
 		/* If this portal is not a Portals portal */
 		if (lookup == null) {
-			Portals.instance.getLogger().info(player.getName() + " destination was null.");
+			Portals.instance.getLogger().info(String.format("%s destination was null at %d %d %d %s", player.getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getName()));
 			return;
 		}
 
