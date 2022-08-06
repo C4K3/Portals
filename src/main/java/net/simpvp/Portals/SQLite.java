@@ -192,6 +192,31 @@ public class SQLite {
 	 * Delete a portal pair by id.
 	 * @param id id (PK) of one of the portals.
 	 */
+	private static void delete_portal_pair(int id) {
+		try {
+			PreparedStatement st;
+			String query;
+
+			query = "DELETE FROM portal_users WHERE portal IN (?, (SELECT DISTINCT pair FROM portal_pairs WHERE id = ?))";
+			st = conn.prepareStatement(query);
+			st.setInt(1, id);
+			st.setInt(2, id);
+			st.executeUpdate();
+			st.close();
+
+
+			query = "DELETE FROM portal_pairs WHERE id IN (?, (SELECT DISTINCT pair FROM portal_pairs WHERE id = ?))";
+			st = conn.prepareStatement(query);
+			st.setInt(1, id);
+			st.setInt(2, id);
+			st.executeUpdate();
+			st.close();
+
+		} catch (Exception e) {
+			Portals.instance.getLogger().severe(e.getMessage());
+		}
+	}
+
 	public static void delete_portal_pair(PortalLocation portal) {
 		Portals.instance.getLogger().info(String.format("Disabling this portal at '%d %d %d %s'",
 					portal.block.getX(),
@@ -200,28 +225,17 @@ public class SQLite {
 					portal.block.getWorld().getName()
 					));
 
-		try {
-			PreparedStatement st;
-			String query;
+		delete_portal_pair(portal.id);
+	}
 
-			query = "DELETE FROM portal_users WHERE portal IN (?, (SELECT DISTINCT pair FROM portal_pairs WHERE id = ?))";
-			st = conn.prepareStatement(query);
-			st.setInt(1, portal.id);
-			st.setInt(2, portal.id);
-			st.executeUpdate();
-			st.close();
+	public static void delete_portal_pair(PortalLookup portal) {
+		Portals.instance.getLogger().info(String.format("Disabling the portal going to '%d %d %d %s'",
+					portal.destination.getBlockX(),
+					portal.destination.getBlockY(),
+					portal.destination.getBlockZ(),
+					portal.destination.getWorld().getName()));
 
-
-			query = "DELETE FROM portal_pairs WHERE id IN (?, (SELECT DISTINCT pair FROM portal_pairs WHERE id = ?))";
-			st = conn.prepareStatement(query);
-			st.setInt(1, portal.id);
-			st.setInt(2, portal.id);
-			st.executeUpdate();
-			st.close();
-
-		} catch (Exception e) {
-			Portals.instance.getLogger().severe(e.getMessage());
-		}
+		delete_portal_pair(portal.a);
 	}
 
 	public static class PortalLookup {
@@ -266,9 +280,11 @@ public class SQLite {
 
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
-				Location destination = new Location(Portals.instance.getServer().getWorld(
-							rs.getString("world")), (double) rs.getInt("x") + 0.5,
-						(double) rs.getInt("y"), (double) rs.getInt("z") + 0.5,
+				Location destination = new Location(
+						Portals.instance.getServer().getWorld(rs.getString("world")),
+						(double) rs.getInt("x") + 0.5,
+						(double) rs.getInt("y"),
+						(double) rs.getInt("z") + 0.5,
 						from.getYaw(), from.getPitch());
 				int a = rs.getInt("id");
 				int b = rs.getInt("pair");
@@ -427,7 +443,7 @@ public class SQLite {
 
 	/**
 	 * For checking whether there is a portal at the given location.
-	 * 
+	 *
 	 * Called whenever an obsidian block is destroyed, this checks whether
 	 * that block was part of a portal here.
 	 * @param block The block that was broken.

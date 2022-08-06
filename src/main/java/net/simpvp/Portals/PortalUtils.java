@@ -51,6 +51,8 @@ public class PortalUtils {
 		if (!PortalCheck.is_valid_portal(lookup.destination.getBlock())) {
 			Portals.instance.getLogger().info(player.getName() + " destination portal frame is missing.");
 
+			SQLite.delete_portal_pair(lookup);
+
 			return;
 		}
 
