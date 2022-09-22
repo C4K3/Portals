@@ -175,6 +175,7 @@ public class PortalUtils {
 		 * The delay in previous versions seems to cause the duplication bug */
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 		boolean somethingTeleported = false;
+		boolean differentWorld = !from.getWorld().getName().equals(destination.getWorld().getName());
 		for (Entity entity : nearby) {
 			if (!TELEPORTABLE_ENTITIES.contains(entity.getType())) {
 				continue;
@@ -186,6 +187,11 @@ public class PortalUtils {
 				}
 			}
 
+			/* Double teleports are required when changing worlds, otherwise non-player entities get stuck in the corner
+			 * of a block and suffocate (destination offsets do not fix this for some reason...) */
+			if (differentWorld) {
+				entity.teleport(destination);
+			}
 			entity.teleport(destination);
 			somethingTeleported = true;
 		}
