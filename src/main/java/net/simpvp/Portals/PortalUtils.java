@@ -92,16 +92,16 @@ public class PortalUtils {
 		}
 
 		Portals.instance.getLogger().info(String.format("Portal teleporting %s from '%d %d %d %s' to '%d %d %d %s'",
-					player.getName(),
-					portal.getBlockX(),
-					portal.getBlockY(),
-					portal.getBlockZ(),
-					portal.getWorld().getName(),
-					lookup.destination.getBlockX(),
-					lookup.destination.getBlockY(),
-					lookup.destination.getBlockZ(),
-					lookup.destination.getWorld().getName()
-					));
+				player.getName(),
+				portal.getBlockX(),
+				portal.getBlockY(),
+				portal.getBlockZ(),
+				portal.getWorld().getName(),
+				lookup.destination.getBlockX(),
+				lookup.destination.getBlockY(),
+				lookup.destination.getBlockZ(),
+				lookup.destination.getWorld().getName()
+		));
 
 		/* workaround for laggy teleports, see
 		 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */
@@ -213,6 +213,7 @@ public class PortalUtils {
 	}
 
 	private static final HashSet<EntityType> TELEPORTABLE_ENTITIES = new HashSet<EntityType>(Arrays.asList(
+			EntityType.ALLAY,
 			// EntityType.AREA_EFFECT_CLOUD,
 			// EntityType.ARMOR_STAND,
 			//EntityType.ARROW,
@@ -245,6 +246,7 @@ public class PortalUtils {
 			// EntityType.FIREWORK,
 			// EntityType.FISHING_HOOK,
 			EntityType.FOX,
+			EntityType.FROG,
 			EntityType.GHAST,
 			EntityType.GLOW_SQUID,
 			EntityType.GOAT,
@@ -312,6 +314,7 @@ public class PortalUtils {
 			EntityType.VILLAGER,
 			EntityType.VINDICATOR,
 			EntityType.WANDERING_TRADER,
+			EntityType.WARDEN,
 			EntityType.WITCH,
 			// EntityType.WITHER,
 			EntityType.WITHER_SKELETON,
@@ -322,7 +325,7 @@ public class PortalUtils {
 			EntityType.ZOMBIE_HORSE,
 			EntityType.ZOMBIE_VILLAGER,
 			EntityType.ZOMBIFIED_PIGLIN
-					));
+	));
 
 }
 
