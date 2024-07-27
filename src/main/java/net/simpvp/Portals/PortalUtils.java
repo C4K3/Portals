@@ -8,7 +8,10 @@ import java.util.UUID;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -103,21 +106,20 @@ public class PortalUtils {
 				lookup.destination.getWorld().getName()
 		));
 
-		/* workaround for laggy teleports, see
-		 * https://bukkit.org/threads/workaround-for-playing-falling-after-teleport-when-lagging.293035/ */
-		Location fLoc = new Location(lookup.destination.getWorld(),
-				lookup.destination.getBlockX(),
-				lookup.destination.getBlockY() - 1,
-				lookup.destination.getBlockZ());
-		player.sendBlockChange(fLoc, fLoc.getBlock().getBlockData());
-		fLoc = new Location(lookup.destination.getWorld(),
-				lookup.destination.getBlockX(),
-				lookup.destination.getBlockY(),
-				lookup.destination.getBlockZ());
-		player.sendBlockChange(fLoc, fLoc.getBlock().getBlockData());
+		// Re-add the workaround for laggy teleports here?
 
-		player.teleport(lookup.destination);
-		teleportNearby(portal, lookup.destination, player);
+		// Find a safe location for the player to teleport to
+		Location safeLocation = findSafeLocation(lookup.destination);
+		if (safeLocation == null) {
+			player.sendMessage(ChatColor.RED + "No safe location found near the portal destination!");
+			return;
+		}
+
+		// Teleport the player to the safe location
+		safeLocation.setYaw(location.getYaw());
+		safeLocation.setPitch(location.getPitch());
+		player.teleport(safeLocation);
+		teleportNearby(portal, safeLocation, player);
 
 		/* Fix players from being stuck sneaking after a teleport*/
 		unsneak(player);
@@ -125,6 +127,28 @@ public class PortalUtils {
 		setTeleported(player);
 	}
 
+	/**
+	 * Finds a safe location for teleporting a player.
+	 * @param destination The initial destination location.
+	 * @return A safe location near the destination or null if no safe location is found.
+	 */
+	private static Location findSafeLocation(Location destination) {
+		World world = destination.getWorld();
+		int startX = destination.getBlockX();
+		int startY = destination.getBlockY();
+		int startZ = destination.getBlockZ();
+
+		for (int y = startY; y < world.getMaxHeight(); y++) {
+			Location checkLocation = new Location(world, startX, y, startZ);
+			Block block1 = world.getBlockAt(checkLocation);
+			Block block2 = world.getBlockAt(checkLocation.add(0, 1, 0));
+
+			if (block1.isPassable() && block2.isPassable()) {
+				return new Location(world, startX + 0.5, y, startZ + 0.5);
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * For teleporting the given player using their current location
@@ -134,7 +158,6 @@ public class PortalUtils {
 		Location location = player.getLocation();
 		teleport(player, location);
 	}
-
 
 	/**
 	 * For limiting portal attempts
@@ -340,4 +363,3 @@ public class PortalUtils {
 	));
 
 }
-
