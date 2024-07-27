@@ -106,10 +106,10 @@ public class PortalUtils {
 				lookup.destination.getWorld().getName()
 		));
 
-		// Re-add the workaround for laggy teleports here?
+		boolean differentWorld = !portal.getWorld().getName().equals(lookup.destination.getWorld().getName());
 
 		// Find a safe location for the player to teleport to
-		Location safeLocation = findSafeLocation(lookup.destination);
+		Location safeLocation = differentWorld ? findSafeLocation(lookup.destination) : lookup.destination;
 		if (safeLocation == null) {
 			player.sendMessage(ChatColor.RED + "No safe location found near the portal destination!");
 			return;
@@ -361,5 +361,4 @@ public class PortalUtils {
 			EntityType.ZOMBIE_VILLAGER,
 			EntityType.ZOMBIFIED_PIGLIN
 	));
-
 }
