@@ -138,6 +138,15 @@ public class PortalUtils {
 		int startY = destination.getBlockY();
 		int startZ = destination.getBlockZ();
 
+		// Check the initial location within the portal using isOccluding
+		Block initialBlock1 = world.getBlockAt(new Location(world, startX, startY, startZ));
+		Block initialBlock2 = world.getBlockAt(new Location(world, startX, startY + 1, startZ));
+
+		if (!initialBlock1.getType().isOccluding() && !initialBlock2.getType().isOccluding()) {
+			return new Location(world, startX + 0.5, startY, startZ + 0.5);
+		}
+
+		// If occluding blocks are found, search above the portal for a passable location
 		for (int y = startY; y < world.getMaxHeight(); y++) {
 			Location checkLocation = new Location(world, startX, y, startZ);
 			Block block1 = world.getBlockAt(checkLocation);
@@ -242,7 +251,9 @@ public class PortalUtils {
 			// EntityType.ARROW,
 			EntityType.AXOLOTL,
 			EntityType.BAT,
+			EntityType.BOGGED,
 			EntityType.BLAZE,
+			EntityType.BREEZE,
 			// EntityType.BLOCK_DISPLAY,
 			EntityType.BOAT,
 			EntityType.CAMEL,
@@ -256,7 +267,7 @@ public class PortalUtils {
 			EntityType.DOLPHIN,
 			EntityType.DONKEY,
 			// EntityType.DRAGON_FIREBALL,
-			EntityType.DROPPED_ITEM,
+			EntityType.ITEM,
 			EntityType.DROWNED,
 			EntityType.EGG,
 			EntityType.ELDER_GUARDIAN,
@@ -296,14 +307,14 @@ public class PortalUtils {
 			EntityType.MAGMA_CUBE,
 			// EntityType.MARKER,
 			EntityType.MINECART,
-			EntityType.MINECART_CHEST,
+			EntityType.CHEST_MINECART,
 			// EntityType.MINECART_COMMAND,
-			EntityType.MINECART_FURNACE,
-			EntityType.MINECART_HOPPER,
+			EntityType.FURNACE_MINECART,
+			EntityType.HOPPER_MINECART,
 			// EntityType.MINECART_MOB_SPAWNER,
-			EntityType.MINECART_TNT,
+			EntityType.TNT_MINECART,
 			EntityType.MULE,
-			EntityType.MUSHROOM_COW,
+			EntityType.MOOSHROOM,
 			EntityType.OCELOT,
 			// EntityType.PAINTING,
 			EntityType.PANDA,
@@ -315,7 +326,7 @@ public class PortalUtils {
 			EntityType.PILLAGER,
 			// EntityType.PLAYER,
 			EntityType.POLAR_BEAR,
-			EntityType.PRIMED_TNT,
+			EntityType.TNT,
 			EntityType.PUFFERFISH,
 			EntityType.RABBIT,
 			EntityType.RAVAGER,
@@ -330,7 +341,7 @@ public class PortalUtils {
 			// EntityType.SMALL_FIREBALL,
 			EntityType.SNIFFER,
 			EntityType.SNOWBALL,
-			EntityType.SNOWMAN,
+			EntityType.SNOW_GOLEM,
 			// EntityType.SPECTRAL_ARROW,
 			EntityType.SPIDER,
 			// EntityType.SPLASH_POTION,
