@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.OptionalDouble;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sittable;
+import org.bukkit.util.BoundingBox;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -109,7 +111,7 @@ public class PortalUtils {
 		boolean differentWorld = !portal.getWorld().getName().equals(lookup.destination.getWorld().getName());
 
 		// Find a safe location for the player to teleport to
-		Location safeLocation = differentWorld ? findSafeLocation(lookup.destination) : lookup.destination;
+		Location safeLocation = differentWorld ? findSafeLocation(lookup.destination, player) : lookup.destination;
 		if (safeLocation == null) {
 			player.sendMessage(ChatColor.RED + "No safe location found near the portal destination!");
 			return;
@@ -129,34 +131,63 @@ public class PortalUtils {
 
 	/**
 	 * Finds a safe location for teleporting a player.
+	 * 
 	 * @param destination The initial destination location.
-	 * @return A safe location near the destination or null if no safe location is found.
+	 * @param player      The player to use for hitbox checks.
+	 * @return A safe location above the destination.
 	 */
-	private static Location findSafeLocation(Location destination) {
+	private static Location findSafeLocation(Location destination, Player player) {
 		World world = destination.getWorld();
 		int startX = destination.getBlockX();
 		int startY = destination.getBlockY();
 		int startZ = destination.getBlockZ();
 
-		// Check the initial location within the portal using isOccluding
-		Block initialBlock1 = world.getBlockAt(new Location(world, startX, startY, startZ));
-		Block initialBlock2 = world.getBlockAt(new Location(world, startX, startY + 1, startZ));
+		BoundingBox playerBB = player.getBoundingBox();
+		double widthX = playerBB.getWidthX() / 2;
+		double widthZ = playerBB.getWidthZ() / 2;
+		double height = playerBB.getHeight(); // Changes depending on standing/crouching/crawling
 
-		if (!initialBlock1.getType().isOccluding() && !initialBlock2.getType().isOccluding()) {
-			return new Location(world, startX + 0.5, startY, startZ + 0.5);
-		}
+		// Create a player sized bounding box at the portal destination.
+		BoundingBox simulatedBB = new BoundingBox(
+				startX + 0.5 + widthX,
+				startY + height,
+				startZ + 0.5 + widthZ,
+				startX + 0.5 - widthX,
+				startY,
+				startZ + 0.5 - widthZ);
 
-		// If occluding blocks are found, search above the portal for a passable location
+		// The vertical gap found must be >=height for it to be a valid location.
+		double verticalGap = 0;
+
 		for (int y = startY; y < world.getMaxHeight(); y++) {
 			Location checkLocation = new Location(world, startX, y, startZ);
-			Block block1 = world.getBlockAt(checkLocation);
-			Block block2 = world.getBlockAt(checkLocation.add(0, 1, 0));
+			Block block = world.getBlockAt(checkLocation);
 
-			if (block1.isPassable() && block2.isPassable()) {
-				return new Location(world, startX + 0.5, y, startZ + 0.5);
+			if (!block.isPassable()) {
+				final double blockY = block.getY();
+				OptionalDouble optMaxY = block.getCollisionShape().getBoundingBoxes().stream()
+						.map(bb -> bb.shift(startX, blockY, startZ))
+						.filter(bb -> simulatedBB.overlaps(bb))
+						.mapToDouble(BoundingBox::getMaxY)
+						.max();
+
+				// The simulation collides with the block.
+				if (optMaxY.isPresent()) {
+					verticalGap = 0;
+					simulatedBB.shift(0, optMaxY.getAsDouble() - simulatedBB.getMinY(), 0);
+					continue;
+				}
+			}
+
+			// No collision.
+			verticalGap += 1;
+
+			if (verticalGap >= height) {
+				break;
 			}
 		}
-		return null;
+
+		return new Location(world, startX + 0.5, simulatedBB.getMinY(), startZ + 0.5);
 	}
 
 	/**
