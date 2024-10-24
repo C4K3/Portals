@@ -121,7 +121,7 @@ public class PortalUtils {
 		safeLocation.setYaw(location.getYaw());
 		safeLocation.setPitch(location.getPitch());
 		player.teleport(safeLocation);
-		teleportNearby(portal, safeLocation, player);
+		teleportNearby(portal, lookup.destination, safeLocation, player);
 
 		/* Fix players from being stuck sneaking after a teleport*/
 		unsneak(player);
@@ -230,15 +230,16 @@ public class PortalUtils {
 	/**
 	 * Teleports nearby non-player entities through a nearby portal
 	 * @param location Location from which someone is being teleported
-	 * @param destination Location of the portal to which things are to be teleported
+	 * @param entityDest Real location to teleport entities to (May be unsafe)
+	 * @param playerDest Safe location to teleport the player to
 	 * @param player player who used the portal and may have to be teleported again to stop visual bug
 	 */
-	public static void teleportNearby(Location from, final Location destination, Player player) {
+	public static void teleportNearby(Location from, final Location entityDest, final Location playerDest, Player player) {
 		/* First teleport all entities at the same time as the player
 		 * The delay in previous versions seems to cause the duplication bug */
 		Collection<Entity> nearby = from.getWorld().getNearbyEntities(from, 2, 2, 2);
 		boolean somethingTeleported = false;
-		boolean differentWorld = !from.getWorld().getName().equals(destination.getWorld().getName());
+		boolean differentWorld = !from.getWorld().getName().equals(entityDest.getWorld().getName());
 		for (Entity entity : nearby) {
 			if (!TELEPORTABLE_ENTITIES.contains(entity.getType())) {
 				continue;
@@ -253,9 +254,9 @@ public class PortalUtils {
 			/* Double teleports are required when changing worlds, otherwise non-player entities get stuck in the corner
 			 * of a block and suffocate (destination offsets do not fix this for some reason...) */
 			if (differentWorld) {
-				entity.teleport(destination);
+				entity.teleport(entityDest);
 			}
-			entity.teleport(destination);
+			entity.teleport(entityDest);
 			somethingTeleported = true;
 		}
 
@@ -269,7 +270,7 @@ public class PortalUtils {
 			}, 1L);
 			Portals.instance.getServer().getScheduler().runTaskLater(Portals.instance, new Runnable() {
 				public void run() {
-					player.teleport(destination);
+					player.teleport(playerDest);
 				}
 			}, 2L);
 		}
