@@ -3,7 +3,9 @@ package net.simpvp.Portals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.OptionalDouble;
 import java.util.UUID;
 
@@ -13,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -240,7 +243,7 @@ public class PortalUtils {
 		boolean somethingTeleported = false;
 		boolean differentWorld = !from.getWorld().getName().equals(destination.getWorld().getName());
 		for (Entity entity : nearby) {
-			if (!TELEPORTABLE_ENTITIES.contains(entity.getType())) {
+			if (!teleportableEntities.contains(entity.getType())) {
 				continue;
 			}
 
@@ -275,132 +278,33 @@ public class PortalUtils {
 		}
 	}
 
-	private static final HashSet<EntityType> TELEPORTABLE_ENTITIES = new HashSet<EntityType>(Arrays.asList(
-			EntityType.ALLAY,
-			// EntityType.AREA_EFFECT_CLOUD,
-			// EntityType.ARMOR_STAND,
-			// EntityType.ARROW,
-			EntityType.AXOLOTL,
-			EntityType.BAT,
-			EntityType.BOGGED,
-			EntityType.BLAZE,
-			EntityType.BREEZE,
-			// EntityType.BLOCK_DISPLAY,
-			EntityType.BOAT,
-			EntityType.CAMEL,
-			EntityType.CAT,
-			EntityType.CAVE_SPIDER,
-			EntityType.CHEST_BOAT,
-			EntityType.CHICKEN,
-			EntityType.COD,
-			EntityType.COW,
-			EntityType.CREEPER,
-			EntityType.DOLPHIN,
-			EntityType.DONKEY,
-			// EntityType.DRAGON_FIREBALL,
-			EntityType.ITEM,
-			EntityType.DROWNED,
-			EntityType.EGG,
-			EntityType.ELDER_GUARDIAN,
-			// EntityType.ENDER_CRYSTAL,
-			// EntityType.ENDER_DRAGON,
-			EntityType.ENDER_PEARL,
-			// EntityType.ENDER_SIGNAL,
-			EntityType.ENDERMAN,
-			EntityType.ENDERMITE,
-			EntityType.EVOKER,
-			// EntityType.EVOKER_FANGS,
-			EntityType.EXPERIENCE_ORB,
-			// EntityType.FALLING_BLOCK,
-			EntityType.FIREBALL,
-			// EntityType.FIREWORK,
-			// EntityType.FISHING_HOOK,
-			EntityType.FOX,
-			EntityType.FROG,
-			EntityType.GHAST,
-			// EntityType.GIANT,
-			// EntityType.GLOW_ITEM_FRAME,
-			EntityType.GLOW_SQUID,
-			EntityType.GOAT,
-			EntityType.GUARDIAN,
-			EntityType.HOGLIN,
-			EntityType.HORSE,
-			EntityType.HUSK,
-			EntityType.ILLUSIONER,
-			// EntityType.INTERACTION,
-			EntityType.IRON_GOLEM,
-			// EntityType.ITEM_DISPLAY,
-			// EntityType.ITEM_FRAME,
-			// EntityType.LEASH_HITCH,
-			// EntityType.LIGHTNING,
-			EntityType.LLAMA,
-			// EntityType.LLAMA_SPIT,
-			EntityType.MAGMA_CUBE,
-			// EntityType.MARKER,
-			EntityType.MINECART,
-			EntityType.CHEST_MINECART,
-			// EntityType.MINECART_COMMAND,
-			EntityType.FURNACE_MINECART,
-			EntityType.HOPPER_MINECART,
-			// EntityType.MINECART_MOB_SPAWNER,
-			EntityType.TNT_MINECART,
-			EntityType.MULE,
-			EntityType.MOOSHROOM,
-			EntityType.OCELOT,
-			// EntityType.PAINTING,
-			EntityType.PANDA,
-			EntityType.PARROT,
-			// EntityType.PHANTOM,
-			EntityType.PIG,
-			EntityType.PIGLIN,
-			EntityType.PIGLIN_BRUTE,
-			EntityType.PILLAGER,
-			// EntityType.PLAYER,
-			EntityType.POLAR_BEAR,
-			EntityType.TNT,
-			EntityType.PUFFERFISH,
-			EntityType.RABBIT,
-			EntityType.RAVAGER,
-			EntityType.SALMON,
-			EntityType.SHEEP,
-			EntityType.SHULKER,
-			// EntityType.SHULKER_BULLET,
-			EntityType.SILVERFISH,
-			EntityType.SKELETON,
-			EntityType.SKELETON_HORSE,
-			EntityType.SLIME,
-			// EntityType.SMALL_FIREBALL,
-			EntityType.SNIFFER,
-			EntityType.SNOWBALL,
-			EntityType.SNOW_GOLEM,
-			// EntityType.SPECTRAL_ARROW,
-			EntityType.SPIDER,
-			// EntityType.SPLASH_POTION,
-			EntityType.SQUID,
-			EntityType.STRAY,
-			EntityType.STRIDER,
-			EntityType.TADPOLE,
-			// EntityType.TEXT_DISPLAY,
-			// EntityType.THROWN_EXP_BOTTLE,
-			EntityType.TRADER_LLAMA,
-			// EntityType.TRIDENT,
-			EntityType.TROPICAL_FISH,
-			EntityType.TURTLE,
-			// EntityType.UNKNOWN,
-			EntityType.VEX,
-			EntityType.VILLAGER,
-			EntityType.VINDICATOR,
-			EntityType.WANDERING_TRADER,
-			EntityType.WARDEN,
-			EntityType.WITCH,
-			// EntityType.WITHER,
-			EntityType.WITHER_SKELETON,
-			// EntityType.WITHER_SKULL,
-			EntityType.WOLF,
-			EntityType.ZOGLIN,
-			EntityType.ZOMBIE,
-			EntityType.ZOMBIE_HORSE,
-			EntityType.ZOMBIE_VILLAGER,
-			EntityType.ZOMBIFIED_PIGLIN
-	));
+	private static HashSet<EntityType> teleportableEntities;
+
+	/**
+	 * Loads the list of teleportable entities, saving any others to a separate unused config key.
+	 */
+	public static void loadTeleportable() {	
+		FileConfiguration config = Portals.instance.getConfig();
+		List<String> configList = config.getStringList("EnabledEntities");
+		HashSet<EntityType> teleportable = new HashSet<>();
+		List<String> disabled = new ArrayList<>();
+
+		for (String name : configList) {
+			try {
+				teleportable.add(EntityType.valueOf(name));
+			} catch (IllegalArgumentException e) {
+				Portals.instance.getLogger().warning("Invalid entity name in config: " + name);
+			}
+		}
+		
+		for (EntityType entity : EntityType.values()) {
+			if (!teleportable.contains(entity)) disabled.add(entity.toString());	
+		}
+
+		Collections.sort(disabled);
+		config.set("DisabledEntitiesAutomatic", disabled);
+		Portals.instance.saveConfig();
+		Portals.instance.getLogger().info("Loaded " + teleportable.size() + " teleportable entities.");
+		teleportableEntities = teleportable;
+	}
 }
