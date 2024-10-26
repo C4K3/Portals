@@ -38,6 +38,7 @@ public class Portals extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerInteract(), this);
 
 		SQLite.connect();
+		PortalUtils.loadTeleportable();
 	}
 
 	public void onDisable() {
